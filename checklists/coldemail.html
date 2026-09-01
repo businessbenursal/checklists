@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cold Email Pre-Send Checklist</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: #f4f6f8;
+            color: #1a1a1a;
+            display: flex;
+            justify-content: center;
+            padding: 40px 20px;
+            margin: 0;
+        }
+        .container {
+            background-color: #ffffff;
+            width: 100%;
+            max-width: 550px;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+        }
+        h2 {
+            margin-top: 0;
+            margin-bottom: 8px;
+            font-size: 1.4rem;
+            color: #111827;
+        }
+        p.subtitle {
+            margin: 0 0 20px 0;
+            font-size: 0.9rem;
+            color: #6b7280;
+        }
+        .section-title {
+            font-weight: 700;
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: #4b5563;
+            margin-top: 20px;
+            margin-bottom: 10px;
+            border-bottom: 1px solid #e5e7eb;
+            padding-bottom: 4px;
+        }
+        .checklist-item {
+            display: flex;
+            align-items: flex-start;
+            padding: 10px 0;
+            cursor: pointer;
+            user-select: none;
+        }
+        .checklist-item input[type="checkbox"] {
+            margin-top: 3px;
+            margin-right: 12px;
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
+            accent-color: #2563eb;
+        }
+        .checklist-item label {
+            font-size: 0.95rem;
+            line-height: 1.4;
+            color: #374151;
+            cursor: pointer;
+        }
+        .checklist-item input[type="checkbox"]:checked + label {
+            text-decoration: line-through;
+            color: #9ca3af;
+        }
+        .btn-reset {
+            margin-top: 25px;
+            width: 100%;
+            padding: 12px;
+            background-color: #2563eb;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 0.95rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+        .btn-reset:hover {
+            background-color: #1d4ed8;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h2>Pre-Send Quality Control</h2>
+    <p class="subtitle">Run through this checklist before hitting send on every outreach email.</p>
+
+    <div class="section-title">Technical Safety</div>
+    
+    <div class="checklist-item">
+        <input type="checkbox" id="item1">
+        <label for="item1"><b>100% Plain Text:</b> Signature contains no images, logos, or tracking pixels.</label>
+    </div>
+    
+    <div class="checklist-item">
+        <input type="checkbox" id="item2">
+        <label for="item2"><b>Verified Recipient:</b> Email address checked for 0% bounce risk.</label>
+    </div>
+
+    <div class="section-title">Targeting & Specificity</div>
+
+    <div class="checklist-item">
+        <input type="checkbox" id="item3">
+        <label for="item3"><b>WordPress Fit:</b> Confirmed prospect uses or manages WordPress sites.</label>
+    </div>
+
+    <div class="checklist-item">
+        <input type="checkbox" id="item4">
+        <label for="item4"><b>Identified Gap:</b> Specific issue spotted (bug, UX flaw, performance issue, or missing feature).</label>
+    </div>
+
+    <div class="section-title">Copy & Engagement</div>
+
+    <div class="checklist-item">
+        <input type="checkbox" id="item5">
+        <label for="item5"><b>Unique Opener:</b> Opening line proves actual review of their work or site.</label>
+    </div>
+
+    <div class="checklist-item">
+        <input type="checkbox" id="item6">
+        <label for="item6"><b>Design & Dev Value:</b> Mentions both technical execution and UI/UX impact.</label>
+    </div>
+
+    <div class="checklist-item">
+        <input type="checkbox" id="item7">
+        <label for="item7"><b>Low-Friction CTA:</b> Soft ask for permission to share value (e.g., Loom link or sample fix).</label>
+    </div>
+
+    <div class="checklist-item">
+        <input type="checkbox" id="item8">
+        <label for="item8"><b>Spelling & Formatting:</b> Double-checked names, domains, and typos.</label>
+    </div>
+
+    <button class="btn-reset" onclick="resetChecklist()">Reset Checklist for Next Email</button>
+</div>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        const checkboxes = document.querySelectorAll('input[type="checkbox"]');
+        
+        // Restore state from localStorage
+        checkboxes.forEach(cb => {
+            const isChecked = localStorage.getItem(cb.id) === "true";
+            cb.checked = isChecked;
+            
+            // Save state on change
+            cb.addEventListener("change", function() {
+                localStorage.setItem(cb.id, cb.checked);
+            });
+        });
+    });
+
+    function resetChecklist() {
+        const checkboxes = document.querySelectorAll('input[type="checkbox"]');
+        checkboxes.forEach(cb => {
+            cb.checked = false;
+            localStorage.removeItem(cb.id);
+        });
+    }
+</script>
+
+</body>
+</html>
