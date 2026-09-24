@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Outreach decision map</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#F5F7FA;--card:#FFFFFF;--ink:#1D2939;--muted:#5A6678;--line:#D3D9E2;
+  --act:#23705F;--act-bg:#E4F2EE;--exit:#9A5B12;--exit-bg:#FBEFDF;--focus:#3867D6;
+  box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#12161C;--card:#1B212A;--ink:#E7EBF1;--muted:#9AA5B5;--line:#2F3844;
+  --act:#7FD1BB;--act-bg:#173A33;--exit:#F2C07A;--exit-bg:#3A2B15;--focus:#8FB0FF;}}
+:root[data-theme="dark"]{
+  --bg:#12161C;--card:#1B212A;--ink:#E7EBF1;--muted:#9AA5B5;--line:#2F3844;
+  --act:#7FD1BB;--act-bg:#173A33;--exit:#F2C07A;--exit-bg:#3A2B15;--focus:#8FB0FF;}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:Figtree,system-ui,-apple-system,"Segoe UI",sans-serif;font-size:17px;line-height:1.6}
+main{max-width:760px;margin:0 auto;padding:2rem 1.25rem 3rem}
+h1{font-size:1.9rem;line-height:1.2;font-weight:600;margin:0 0 .4rem;letter-spacing:-.01em}
+.lede{color:var(--muted);margin:0 0 2rem;max-width:34rem}
+button{font:inherit;color:inherit;cursor:pointer}
+button:focus-visible{outline:2px solid var(--focus);outline-offset:3px}
+.node{display:block;width:100%;text-align:left;background:var(--card);border:1px solid var(--line);border-radius:10px;padding:.85rem 1rem}
+.node:hover{border-color:var(--muted)}
+.node strong{display:block;font-weight:600;font-size:1rem}
+.node span{display:block;color:var(--muted);font-size:.9rem;line-height:1.4}
+.node.act{background:var(--act-bg);border-color:transparent}
+.node.act strong{color:var(--act)}
+.node.exit{background:var(--exit-bg);border-color:transparent}
+.node.exit strong{color:var(--exit)}
+.spine{max-width:340px;margin:0 auto}
+.down{width:1px;height:26px;background:var(--line);margin:0 auto}
+.branches{display:grid;grid-template-columns:repeat(4,1fr);gap:.75rem;border-top:1px solid var(--line);padding-top:1.25rem;position:relative}
+.col{display:flex;flex-direction:column}
+.col .down{height:18px}
+.exitwrap{margin-top:.25rem}
+.calm{margin-top:2.5rem}
+@media (max-width:640px){.branches{grid-template-columns:1fr 1fr;row-gap:1.5rem}}
+#detail{display:none}
+.back{background:none;border:0;padding:.25rem 0;color:var(--muted);margin-bottom:1rem}
+.back:hover{color:var(--ink)}
+.tag{display:inline-block;font-size:.85rem;padding:.1rem .6rem;border-radius:99px;background:var(--card);border:1px solid var(--line);color:var(--muted);margin-bottom:.75rem}
+.tag.act{background:var(--act-bg);color:var(--act);border-color:transparent}
+.tag.exit{background:var(--exit-bg);color:var(--exit);border-color:transparent}
+#detail h2{font-size:1.6rem;line-height:1.25;font-weight:600;margin:0 0 .75rem}
+#detail p{max-width:38rem}
+#detail ol,#detail ul{padding-left:1.25rem;max-width:38rem}
+#detail li{margin-bottom:.7rem}
+.note{background:var(--card);border-left:3px solid var(--act);padding:.75rem 1rem;margin:1.5rem 0;max-width:38rem}
+.next{margin-top:2rem;display:flex;gap:.75rem;flex-wrap:wrap}
+.next button{background:var(--card);border:1px solid var(--line);border-radius:8px;padding:.5rem .9rem}
+.next button:hover{border-color:var(--muted)}
+
+.site-nav{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:.5rem 1rem;margin:0 0 1.75rem;padding-bottom:.9rem;border-bottom:1px solid var(--line,#e5e7eb);font-size:.9rem;line-height:1.4}
+.site-nav a{color:var(--muted,#6b7280);text-decoration:none;border-radius:6px;padding:.2rem .1rem}
+.site-nav a:hover{color:var(--ink,#111827)}
+.site-nav a:focus-visible{outline:2px solid var(--focus,#2563eb);outline-offset:2px}
+.site-nav .home{font-weight:600;color:var(--ink,#111827)}
+.site-nav .links{display:flex;flex-wrap:wrap;gap:.25rem 1rem}
+.site-nav a[aria-current="page"]{color:var(--act,#2563eb);font-weight:600}
+</style>
+</head>
+<body>
+<main>
+<nav class="site-nav" aria-label="Pages"><a class="home" href="index.html">← Dashboard</a><div class="links"><a href="coldemail.html">Pre-send checklist</a><a href="outreach-map.html" aria-current="page">Decision map</a><a href="building-cs.html">Building Cornerstone Smith</a></div></nav>
+<section id="map">
+  <h1>Outreach decision map</h1>
+  <p class="lede">Decisions happen at the checkpoint, not on a quiet day. Tap any step to see what it means and what to do.</p>
+
+  <div class="spine">
+    <button class="node" data-go="routine"><strong>Daily routine</strong><span>2 emails, log, follow up</span></button>
+    <div class="down"></div>
+    <button class="node" data-go="checkpoint"><strong>Checkpoint at 30 emails</strong><span>Count replies, then pick a branch</span></button>
+    <div class="down"></div>
+  </div>
+
+  <div class="branches">
+    <div class="col">
+      <button class="node" data-go="zero"><strong>Zero replies</strong><span>Total silence</span></button>
+      <div class="down"></div>
+      <button class="node act" data-go="fix"><strong>Fix one thing</strong><span>Delivery, then message</span></button>
+      <div class="down"></div>
+      <button class="node exit exitwrap" data-go="exit"><strong>Still zero after 30 more</strong><span>Switch markets</span></button>
+    </div>
+    <div class="col">
+      <button class="node" data-go="no"><strong>Polite no's</strong><span>Replies, not now</span></button>
+      <div class="down"></div>
+      <button class="node act" data-go="offer"><strong>Adjust offer</strong><span>Smaller first job</span></button>
+    </div>
+    <div class="col">
+      <button class="node" data-go="talks"><strong>Talks, no job</strong><span>Interest stalls</span></button>
+      <div class="down"></div>
+      <button class="node act" data-go="close"><strong>Tighten close</strong><span>Clear first step</span></button>
+    </div>
+    <div class="col">
+      <button class="node" data-go="job"><strong>A paid job</strong><span>Even a small one</span></button>
+      <div class="down"></div>
+      <button class="node act" data-go="keep"><strong>Keep going</strong><span>It works, add volume</span></button>
+    </div>
+  </div>
+
+  <div class="calm spine">
+    <button class="node" data-go="calm"><strong>When the inbox is quiet</strong><span>Rules for the emotional side</span></button>
+  </div>
+</section>
+
+<section id="detail" aria-live="polite"></section>
+</main>
+
+<script>
+const D = {
+routine:{tag:"Every weekday",title:"Daily routine",body:`
+<p>This is the only thing you judge yourself on between checkpoints.</p>
+<ol>
+<li><b>Send 2 new emails.</b> Take the next rows from your spreadsheet, spend about 10 minutes finding a real opener for each, run the <a href="coldemail.html" style="color:var(--act)">pre-send checklist</a>, and send.</li>
+<li><b>Log them.</b> Fill in the date sent and set the follow-up date 4 to 5 days out.</li>
+<li><b>Send any follow-ups due today.</b> One or two lines, ideally with one new helpful detail.</li>
+<li><b>Check your inbox twice,</b> at set times. Not constantly.</li>
+</ol>
+<div class="note">If you did these four things, today was a success, whatever the inbox says.</div>`,next:["checkpoint"]},
+
+checkpoint:{tag:"About 3 weeks in",title:"Checkpoint at 30 emails",body:`
+<p>Once you've sent 30 first emails, plus their follow-ups, pick a set day and sit down for 20 minutes with the spreadsheet.</p>
+<ol>
+<li>Count replies of any kind, including polite no's.</li>
+<li>Count real conversations, and any paid jobs.</li>
+<li>Pick the branch that matches your <b>best</b> result. One paid job beats ten no's.</li>
+</ol>
+<div class="note">No decisions before this day. Silence before the checkpoint is just data waiting to be counted.</div>`,next:["zero","no","talks","job"]},
+
+zero:{tag:"Outcome",title:"Zero replies",body:`
+<p><b>What it means:</b> after 30 emails and follow-ups, nobody replied at all.</p>
+<p><b>Most likely causes,</b> in order: the emails aren't landing in inboxes, they're reaching the wrong people, or they aren't being opened.</p>
+<p><b>What it doesn't mean:</b> that your skills aren't good enough, or that there's no market. Not yet. It means something in the pipeline needs one fix.</p>`,next:["fix"]},
+
+fix:{tag:"What to do",cls:"act",title:"Fix one thing",body:`
+<p>Work through these in order. The early ones are quick and rule out the most common causes.</p>
+<ol>
+<li><b>Delivery.</b> Rerun mail-tester, look for bounce messages, and send a test to your own Gmail and Outlook addresses to see if it lands in spam.</li>
+<li><b>The list.</b> Were most contacts A-scored and recently active? Did you reach the person who does or hires for the work, not an info@ inbox?</li>
+<li><b>Subject line.</b> Try a different style, such as naming their own thread or project: "Christopher, your CS Forms thread."</li>
+<li><b>The ask.</b> Shrink it to a yes/no question: "Want me to send over the fix?"</li>
+<li><b>The opener.</b> Only send when you've found a real, verified issue or a specific thread. No generic compliments.</li>
+<li><b>Length.</b> Cut the email roughly in half. Credentials down to one sentence.</li>
+</ol>
+<div class="note">Change one thing per batch, note it in a "Version" column, then send the next 30 and compare.</div>`,next:["exit"]},
+
+exit:{tag:"Exit rule",cls:"exit",title:"Still zero after 30 more",body:`
+<p>If a second batch of 30, with one change, is also completely silent, you stop Pro outreach.</p>
+<p><b>This isn't failure.</b> It's the system doing its job: giving you a clear answer so you can move on without guilt.</p>
+<ol>
+<li>Switch to <b>Elementor agencies</b> or the <b>automation offer</b>.</li>
+<li>Keep the same method: find a real issue on their site, make a small ask.</li>
+<li>Keep any Pro clients you already have.</li>
+<li>Run the same checkpoint at 30 emails.</li>
+</ol>`,next:[]},
+
+no:{tag:"Outcome",title:"Polite no's",body:`
+<p><b>What it means:</b> people are reading and taking the time to reply. The market is real and you're credible.</p>
+<p><b>What's off:</b> the timing, or the first step feels bigger than they need right now.</p>
+<p>Write down any reasons they give. Patterns in those reasons tell you exactly what to adjust.</p>`,next:["offer"]},
+
+offer:{tag:"What to do",cls:"act",title:"Adjust offer",body:`
+<ol>
+<li><b>Make the first step smaller.</b> One fix or one page, 2 to 5 hours, priced up front.</li>
+<li><b>Ask for a referral</b> when they say no: "Totally understand. Is there anyone you know who might need a Pro developer?"</li>
+<li><b>Ask permission to check back</b> in two or three months, and put the date in the spreadsheet.</li>
+<li><b>Look at the reasons you logged.</b> If several say "we do it in-house," aim at busier or smaller agencies.</li>
+</ol>`,next:["close"]},
+
+talks:{tag:"Outcome",title:"Talks, no job",body:`
+<p><b>What it means:</b> they're interested enough to talk, but it stalls before anyone pays.</p>
+<p><b>Usual cause:</b> the next step is vague ("let me know if anything comes up") or feels risky for someone who's never worked with you.</p>`,next:["close"]},
+
+close:{tag:"What to do",cls:"act",title:"Tighten close",body:`
+<ol>
+<li><b>Offer one concrete, priced first step.</b> For example: "5 hours, $200, I'll fix the header on staging by Friday."</li>
+<li><b>Put it in writing</b> in the same email thread, so saying yes is one reply.</li>
+<li><b>Make paying easy.</b> Send the invoice the same day they say yes.</li>
+<li><b>Follow up on quiet conversations</b> after 3 or 4 days with a short nudge.</li>
+</ol>`,next:["keep"]},
+
+job:{tag:"Outcome",title:"A paid job",body:`
+<p><b>What it means:</b> the system works. Someone who didn't know you last month is paying you.</p>
+<p>Even one small job is enough. The goal now is to turn it into repeat work and to find more agencies like this one.</p>`,next:["keep"]},
+
+keep:{tag:"What to do",cls:"act",title:"Keep going",body:`
+<ol>
+<li><b>Do great work and deliver early.</b> This job is your best marketing.</li>
+<li><b>Ask what else is in their backlog</b> when you deliver.</li>
+<li><b>Ask for a short testimonial</b> once they're happy.</li>
+<li><b>Note what worked:</b> the source, the opener, the subject line. Look for more agencies like them.</li>
+<li><b>Raise volume</b> to 3 emails a day if you have the capacity.</li>
+</ol>`,next:[]},
+
+calm:{tag:"Always",title:"When the inbox is quiet",body:`
+<ol>
+<li><b>Judge the day by the routine,</b> not by replies. Two emails sent and logged is a good day.</li>
+<li><b>Check email twice a day,</b> at set times.</li>
+<li><b>Replies take days, not hours.</b> Many come after the follow-up.</li>
+<li><b>Silence before the checkpoint says nothing</b> about you or your skills. It's data you haven't counted yet.</li>
+<li><b>If the plan says stop, you stop.</b> That's the plan working, not you failing.</li>
+</ol>`,next:["routine"]}
+};
+
+const map=document.getElementById('map'), det=document.getElementById('detail');
+function show(id){
+  const d=D[id];
+  if(!d){map.style.display='';det.style.display='none';return;}
+  const nx=d.next.map(n=>`<button data-go="${n}">${D[n].title}</button>`).join('');
+  det.innerHTML=`<button class="back" data-go="">← Back to the map</button>
+    <div class="tag ${d.cls||''}">${d.tag}</div><h2>${d.title}</h2>${d.body}
+    ${nx?`<div class="next">${nx}</div>`:''}`;
+  map.style.display='none';det.style.display='block';
+  window.scrollTo(0,0);det.querySelector('.back').focus();
+}
+document.addEventListener('click',e=>{
+  const b=e.target.closest('[data-go]');if(!b)return;
+  const id=b.dataset.go;
+  location.hash=id; show(id);
+});
+window.addEventListener('hashchange',()=>show(location.hash.slice(1)));
+show(location.hash.slice(1));
+</script>
+</body>
+</html>

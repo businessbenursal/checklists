@@ -85,11 +85,20 @@
         .btn-reset:hover {
             background-color: #1d4ed8;
         }
-    </style>
+    
+.site-nav{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:.5rem 1rem;margin:0 0 1.75rem;padding-bottom:.9rem;border-bottom:1px solid var(--line,#e5e7eb);font-size:.9rem;line-height:1.4}
+.site-nav a{color:var(--muted,#6b7280);text-decoration:none;border-radius:6px;padding:.2rem .1rem}
+.site-nav a:hover{color:var(--ink,#111827)}
+.site-nav a:focus-visible{outline:2px solid var(--focus,#2563eb);outline-offset:2px}
+.site-nav .home{font-weight:600;color:var(--ink,#111827)}
+.site-nav .links{display:flex;flex-wrap:wrap;gap:.25rem 1rem}
+.site-nav a[aria-current="page"]{color:var(--act,#2563eb);font-weight:600}
+</style>
 </head>
 <body>
 
 <div class="container">
+    <nav class="site-nav" aria-label="Pages"><a class="home" href="index.html">← Dashboard</a><div class="links"><a href="coldemail.html" aria-current="page">Pre-send checklist</a><a href="outreach-map.html">Decision map</a><a href="building-cs.html">Building Cornerstone Smith</a></div></nav>
     <h2>Pre-Send Quality Control</h2>
     <p class="subtitle">Run through this checklist before hitting send on every outreach email.</p>
 

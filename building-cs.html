@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Building Cornerstone Smith</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#F5F7FA;--card:#FFFFFF;--ink:#1D2939;--muted:#5A6678;--line:#D3D9E2;
+  --act:#23705F;--act-bg:#E4F2EE;--you:#6A4C93;--you-bg:#EFE9F7;--focus:#3867D6;
+  box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#12161C;--card:#1B212A;--ink:#E7EBF1;--muted:#9AA5B5;--line:#2F3844;
+  --act:#7FD1BB;--act-bg:#173A33;--you:#C9B3EC;--you-bg:#2C2340;--focus:#8FB0FF;}}
+:root[data-theme="dark"]{
+  --bg:#12161C;--card:#1B212A;--ink:#E7EBF1;--muted:#9AA5B5;--line:#2F3844;
+  --act:#7FD1BB;--act-bg:#173A33;--you:#C9B3EC;--you-bg:#2C2340;--focus:#8FB0FF;}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:Figtree,system-ui,-apple-system,"Segoe UI",sans-serif;font-size:17px;line-height:1.6}
+main{max-width:760px;margin:0 auto;padding:2rem 1.25rem 3rem}
+h1{font-size:1.9rem;line-height:1.2;font-weight:600;margin:0 0 .4rem;letter-spacing:-.01em}
+.lede{color:var(--muted);margin:0 0 2rem;max-width:36rem}
+h2.group{font-size:1rem;font-weight:600;color:var(--muted);margin:2rem 0 .75rem}
+button{font:inherit;color:inherit;cursor:pointer}
+button:focus-visible,a:focus-visible{outline:2px solid var(--focus);outline-offset:3px}
+.grid{display:grid;grid-template-columns:repeat(2,1fr);gap:.75rem}
+@media (max-width:560px){.grid{grid-template-columns:1fr}}
+.node{display:block;width:100%;text-align:left;background:var(--card);border:1px solid var(--line);border-radius:10px;padding:.9rem 1rem}
+.node:hover{border-color:var(--muted)}
+.node strong{display:block;font-weight:600}
+.node span{display:block;color:var(--muted);font-size:.9rem;line-height:1.4}
+.node.you{background:var(--you-bg);border-color:transparent}
+.node.you strong{color:var(--you)}
+.principle{margin-top:2rem;background:var(--act-bg);border-color:transparent}
+.principle strong{color:var(--act)}
+#detail{display:none}
+.back{background:none;border:0;padding:.25rem 0;color:var(--muted);margin-bottom:1rem}
+.back:hover{color:var(--ink)}
+.tag{display:inline-block;font-size:.85rem;padding:.1rem .6rem;border-radius:99px;background:var(--card);border:1px solid var(--line);color:var(--muted);margin-bottom:.75rem}
+.tag.you{background:var(--you-bg);color:var(--you);border-color:transparent}
+.tag.act{background:var(--act-bg);color:var(--act);border-color:transparent}
+#detail h2{font-size:1.6rem;line-height:1.25;font-weight:600;margin:0 0 .75rem}
+#detail h3{font-size:1.05rem;font-weight:600;margin:1.75rem 0 .5rem}
+#detail p,#detail ul{max-width:38rem}
+#detail ul{padding-left:1.25rem}
+#detail li{margin-bottom:.6rem}
+ul.done{list-style:none;padding-left:0}
+ul.done li{padding-left:1.6rem;position:relative}
+ul.done li::before{content:"✓";position:absolute;left:0;color:var(--act);font-weight:600}
+.note{background:var(--card);border-left:3px solid var(--act);padding:.75rem 1rem;margin:1.5rem 0;max-width:38rem}
+.next{margin-top:2rem;display:flex;gap:.75rem;flex-wrap:wrap}
+.next button{background:var(--card);border:1px solid var(--line);border-radius:8px;padding:.5rem .9rem}
+.next button:hover{border-color:var(--muted)}
+a{color:var(--act)}
+
+.site-nav{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:.5rem 1rem;margin:0 0 1.75rem;padding-bottom:.9rem;border-bottom:1px solid var(--line,#e5e7eb);font-size:.9rem;line-height:1.4}
+.site-nav a{color:var(--muted,#6b7280);text-decoration:none;border-radius:6px;padding:.2rem .1rem}
+.site-nav a:hover{color:var(--ink,#111827)}
+.site-nav a:focus-visible{outline:2px solid var(--focus,#2563eb);outline-offset:2px}
+.site-nav .home{font-weight:600;color:var(--ink,#111827)}
+.site-nav .links{display:flex;flex-wrap:wrap;gap:.25rem 1rem}
+.site-nav a[aria-current="page"]{color:var(--act,#2563eb);font-weight:600}
+</style>
+</head>
+<body>
+<main>
+<nav class="site-nav" aria-label="Pages"><a class="home" href="index.html">← Dashboard</a><div class="links"><a href="coldemail.html">Pre-send checklist</a><a href="outreach-map.html">Decision map</a><a href="building-cs.html" aria-current="page">Building Cornerstone Smith</a></div></nav>
+<section id="map">
+  <h1>Building Cornerstone Smith</h1>
+  <p class="lede">What you're doing isn't a warm-up for entrepreneurship. It is entrepreneurship. Tap any part to see what it means, what you've done, and what comes next.</p>
+
+  <h2 class="group">The business</h2>
+  <div class="grid">
+    <button class="node" data-go="market"><strong>Choosing a market</strong><span>Who you serve, and who you don't</span></button>
+    <button class="node" data-go="product"><strong>Shaping a product</strong><span>Turning skill into a clear offer</span></button>
+    <button class="node" data-go="position"><strong>Positioning and pricing</strong><span>Why you, and what it costs</span></button>
+    <button class="node" data-go="sales"><strong>Sales</strong><span>Finding and reaching clients</span></button>
+    <button class="node" data-go="systems"><strong>Systems</strong><span>Running the same on good and bad days</span></button>
+    <button class="node" data-go="tests"><strong>Experiments</strong><span>Learning what works, one change at a time</span></button>
+  </div>
+
+  <h2 class="group">You</h2>
+  <div class="grid">
+    <button class="node you" data-go="self"><strong>Managing yourself</strong><span>Keeping going through uncertainty</span></button>
+    <button class="node you" data-go="shift"><strong>Freelancer to entrepreneur</strong><span>The shift you made</span></button>
+    <button class="node you" data-go="fade"><strong>When motivation fades</strong><span>What to do when discouragement starts</span></button>
+  </div>
+
+  <h2 class="group">Focus</h2>
+  <button class="node" data-go="wont"><strong>What I deliberately won't do</strong><span>The things I'm saying no to, so the plan gets a fair test</span></button>
+
+  <button class="node principle" data-go="principle"><strong>The principle</strong><span>Systems for the decisions, feelings for the fuel, care for the people</span></button>
+</section>
+
+<section id="detail" aria-live="polite"></section>
+</main>
+
+<script>
+const D={
+market:{tag:"The business",title:"Choosing a market",
+what:"Deciding exactly who you serve, and who you don't. Most new businesses try to serve everyone and end up reaching no one.",
+done:["Chose agencies and studios that build with Pro or Cornerstone.","Stopped pitching end businesses that would never hire an agency developer.","Created A, B and C scores so you spend time on the best prospects."],
+next:["Build the list of about 50 agencies in one sitting.","Let the checkpoint tell you whether small solo shops or larger teams reply more."],next2:["product"]},
+
+product:{tag:"The business",title:"Shaping a product",
+what:"Turning your skill into something clear that people can say yes to. \"I'm available\" isn't a product. A defined service with a first step is.",
+done:["Defined four areas: new builds, fixes and troubleshooting, advanced Pro, and the automation behind the site.","Created a low-risk way to start: one small job, estimated up front.","Kept automation as an add-on instead of a second business."],
+next:["Update the homepage so it matches the offer in your emails.","Refine the offer based on what clients actually ask for."],next2:["position"]},
+
+position:{tag:"The business",title:"Positioning and pricing",
+what:"Answering two questions every business faces: why should someone pick you, and what does it cost?",
+done:["Clarified your credentials: Themeco 2017 to 2021, leading Elite, Themeco's custom-build team, and more than four years at AboundUp.","Corrected the facts: building WordPress sites since 2014.","Set pricing: $40 an hour in prepaid blocks of 5, 10 or 20 hours, with full builds estimated separately.","Promise: take on more projects without hiring."],
+next:["Fix the inconsistencies on the website.","Use the new credentials line in every email from now on.","Revisit the rate once you have a few steady clients."],next2:["sales"]},
+
+sales:{tag:"The business",title:"Sales",
+what:"Finding the right people and giving them a reason to talk to you. In a one-person business, cold email is sales.",
+done:["Found a working formula: a real issue on their site, a short credentials line, a small ask, and \"Totally cool to say no.\"","Sent six strong emails in one day.","Found your best lead source: active members of the Themeco forum."],
+next:["Send 2 new emails each weekday.","Follow up 4 to 5 days after each first email.","Reply to Ted Lucidi asking who on his dev team to say hi to."],next2:["systems"]},
+
+systems:{tag:"The business",title:"Systems",
+what:"Routines and tools that make the business run the same way whether you feel great or discouraged.",
+done:["Designed the prospect spreadsheet, with fields for source, score, status and follow-up date.","Set a daily routine: 2 emails, log them, send follow-ups, check the inbox twice.","Built the outreach decision map, with a checkpoint at 30 emails."],
+next:["Add today's six emails to the spreadsheet.","Pick your checkpoint date and put it in your calendar."],link:true,next2:["tests"]},
+
+tests:{tag:"The business",title:"Experiments",
+what:"Treating ideas as guesses and checking them against reality in small, cheap ways, instead of betting everything on one assumption.",
+done:["Listed what can be tested: target market, lead source, opener, subject line, the ask, length, and price.","Separated what stays fixed: your credentials, your voice, and your method.","Set the rule: change one thing per batch."],
+next:["Test the opener or the subject line first, since they affect the most.","Add a \"Version\" column to the spreadsheet.","Test price only once people start asking what you charge."],next2:["self"]},
+
+self:{tag:"You",cls:"you",title:"Managing yourself",
+what:"Handling uncertainty without letting it decide your worth. Every founder faces long stretches where results haven't arrived yet.",
+done:["Decided that decisions happen at the checkpoint, not on a quiet day.","Set a rule to check email twice a day, at set times.","Accepted that stopping, if the plan says so, is the plan working, not you failing."],
+next:["Judge each day by the routine, not by replies.","Open \"When the inbox is quiet\" on the decision map on hard days.","Keep your people close. You don't have to carry this alone."],link:true,next2:["shift"]},
+
+shift:{tag:"You",cls:"you",title:"Freelancer to entrepreneur",
+what:"A freelancer waits for work to appear. An entrepreneur builds a repeatable way to create it.",
+done:["Moved from \"I'm available\" to a defined offer for a defined market.","Replaced hoping with a routine you can repeat every day.","Started treating results as information, not as a verdict on you."],
+next:["Keep running the system long enough for it to work: about three weeks to the first checkpoint."],next2:["principle"]},
+
+fade:{tag:"You",cls:"you",title:"When motivation fades",body:`
+<p>Motivation comes in waves. It will fade, probably around the second week, before results have had time to arrive. That's normal, and the plan is built for it. The routine is meant to work on the days you don't feel like it.</p>
+<h3>Signs discouragement is starting</h3>
+<ul>
+<li>Skipping a day, then another.</li>
+<li>Checking the inbox over and over, or rereading emails you've sent.</li>
+<li>Thinking "this won't work either."</li>
+<li>Suddenly wanting to change the whole plan.</li>
+</ul>
+<h3>What to do, in order</h3>
+<ul>
+<li><b>Name it.</b> Say to yourself: "This is discouragement, not data." The checkpoint decides what results mean, not this feeling.</li>
+<li><b>Do the minimum day.</b> One email, or just prepare one row in the spreadsheet. Fifteen minutes. Keeping the chain going matters more than the size of the day.</li>
+<li><b>Reread your proof.</b> The list below is real, and nobody can take it away.</li>
+<li><b>Talk to someone you trust.</b> Say it out loud instead of carrying it alone.</li>
+<li><b>Rest on purpose.</b> A planned day off is part of the system. A guilty skipped day isn't.</li>
+<li><b><a href="outreach-map.html#calm">Open the decision map.</a></b> "When the inbox is quiet" is there for exactly these days.</li>
+</ul>
+<h3>Proof you can do this</h3>
+<ul class="done">
+<li>You diagnosed Cobblestone's broken header, down to a stale WP Rocket cache, and confirmed it.</li>
+<li>You found a live forum thread for White Media that made a near-perfect opener.</li>
+<li>You sent six strong, specific emails in one day.</li>
+<li>Ted Lucidi replied to your very first email written this way.</li>
+<li>You worked inside Themeco and led Elite. Very few people in the world know Pro like you do.</li>
+</ul>
+<h3>Why I'm doing this</h3>
+<p>Write your own reason here, in your own words. It's saved in this browser, so it's waiting for you on a hard day.</p>
+<textarea id="why" rows="4" style="width:100%;max-width:38rem;font:inherit;color:var(--ink);background:var(--card);border:1px solid var(--line);border-radius:8px;padding:.75rem" placeholder="I'm doing this because..."></textarea>
+<p id="saved" style="color:var(--muted);font-size:.9rem;min-height:1.4em"></p>
+<div class="note">If the heaviness lasts for weeks, starts affecting your sleep, or feels hopeless rather than just discouraging, that's more than a business problem. Please talk to someone close to you or a professional. That's strength, not weakness.</div>`,next2:["self","principle"]},
+
+wont:{tag:"Focus",title:"What I deliberately won't do",body:`
+<p>Focus means saying no to good things too. These are paused, not forbidden. Each one gets reconsidered at a checkpoint, with real evidence.</p>
+<h3>Market</h3>
+<ul>
+<li><b>I won't pitch end businesses or generic WordPress clients.</b> They rarely hire an agency developer, and my edge is Pro.</li>
+<li><b>I won't switch to Elementor agencies before the checkpoint.</b> That's the exit rule's job, not a bad day's.</li>
+<li><b>I won't run automation outreach as a second campaign.</b> Automation is an add-on for Pro clients and people who already know me.</li>
+<li><b>I won't position myself as a "growth" marketer.</b> Growth is the result clients get, not what I sell.</li>
+</ul>
+<h3>Offer</h3>
+<ul>
+<li><b>I won't sell monthly subscriptions.</b> Prepaid hour blocks are simpler to say yes to.</li>
+<li><b>I won't promise full builds inside a small block.</b> Full sites get a proper estimate.</li>
+<li><b>I won't overstate my credentials.</b> I led Elite, Themeco's custom-build team, not the Pro product team. The truth is strong enough.</li>
+</ul>
+<h3>Outreach</h3>
+<ul>
+<li><b>I won't send an email without a real, verified opener.</b> No generic compliments, no "I'm available."</li>
+<li><b>I won't reference private forum threads,</b> or step on fixes Themeco is already making.</li>
+<li><b>I won't pay for list tools like BuiltWith.</b> The forum, the Facebook group and footer credits are free and better.</li>
+<li><b>I won't change more than one thing per batch.</b> Otherwise I can't tell what worked.</li>
+</ul>
+<h3>Mindset</h3>
+<ul>
+<li><b>I won't judge results before the checkpoint.</b></li>
+<li><b>I won't check my inbox all day.</b> Twice, at set times.</li>
+<li><b>I won't treat silence as a verdict on me.</b> It's data I haven't counted yet.</li>
+<li><b>I won't keep going past the exit rule out of stubbornness.</b> If the plan says stop, I stop.</li>
+</ul>
+<div class="note">Every no on this page protects the yes: Pro agencies, real openers, one small first job.</div>`,next2:["principle"]},
+
+principle:{tag:"The principle",cls:"act",title:"Systems, feelings, and care",body:`
+<p><b>Systems for the decisions.</b> The spreadsheet and the checkpoint read the results, so an empty inbox doesn't get to decide what it means.</p>
+<p><b>Feelings for the fuel.</b> Emotions are why you keep going, and they're information too. If a kind of work drains you or lights you up, notice it.</p>
+<p><b>Care for the people.</b> Once someone replies, stop testing and start building a relationship. The warmth in your emails comes from actually caring, and that's worth keeping.</p>
+<div class="note">You're not removing emotions. You're putting them in the right place.</div>`,next2:["market"]}
+};
+const MAP="outreach-map.html";
+const map=document.getElementById('map'),det=document.getElementById('detail');
+function li(a,c){return `<ul class="${c||''}">${a.map(x=>`<li>${x}</li>`).join('')}</ul>`}
+function show(id){
+  const d=D[id];
+  if(!d){map.style.display='';det.style.display='none';return;}
+  let body=d.body||`<p>${d.what}</p><h3>What you've done</h3>${li(d.done,'done')}<h3>What's next</h3>${li(d.next)}`;
+  if(d.link)body+=`<p><a href="${MAP}">Open the outreach decision map</a></p>`;
+  const nx=(d.next2||[]).map(n=>`<button data-go="${n}">${D[n].title}</button>`).join('');
+  det.innerHTML=`<button class="back" data-go="">← Back to the overview</button>
+  <div class="tag ${d.cls||''}">${d.tag}</div><h2>${d.title}</h2>${body}${nx?`<div class="next">${nx}</div>`:''}`;
+  map.style.display='none';det.style.display='block';window.scrollTo(0,0);det.querySelector('.back').focus();
+  const w=document.getElementById('why');
+  if(w){
+    try{w.value=localStorage.getItem('cs-why')||'';}catch(e){}
+    let t;w.addEventListener('input',()=>{clearTimeout(t);t=setTimeout(()=>{
+      try{localStorage.setItem('cs-why',w.value);document.getElementById('saved').textContent='Saved';}
+      catch(e){document.getElementById('saved').textContent='Couldn\u2019t save in this browser. Copy it somewhere safe.';}
+    },400);});
+  }
+}
+document.addEventListener('click',e=>{const b=e.target.closest('[data-go]');if(!b)return;const id=b.dataset.go;location.hash=id;show(id);});
+window.addEventListener('hashchange',()=>show(location.hash.slice(1)));
+show(location.hash.slice(1));
+</script>
+</body>
+</html>
