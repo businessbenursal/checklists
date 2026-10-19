@@ -79,6 +79,68 @@
             background-color: #f3f4f6;
             color: #9ca3af;
         }
+        /* Featured tool card */
+        .featured {
+            display: block;
+            position: relative;
+            margin-bottom: 25px;
+            padding: 24px 24px 22px;
+            border-radius: 10px;
+            text-decoration: none;
+            color: #ffffff;
+            background: linear-gradient(135deg, #0f172a 0%, #1e3a8a 60%, #0891b2 100%);
+            box-shadow: 0 8px 22px rgba(30, 58, 138, 0.28);
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+        .featured:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 28px rgba(8, 145, 178, 0.35);
+        }
+        .featured .eyebrow {
+            display: inline-block;
+            font-size: 0.7rem;
+            font-weight: 700;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            color: #0f172a;
+            background-color: #67e8f9;
+            padding: 3px 9px;
+            border-radius: 12px;
+            margin-bottom: 12px;
+        }
+        .featured h2 {
+            margin: 0 0 6px 0;
+            font-size: 1.3rem;
+            color: #ffffff;
+        }
+        .featured p {
+            margin: 0 0 16px 0;
+            font-size: 0.9rem;
+            line-height: 1.5;
+            color: #cbd5e1;
+        }
+        .featured .cta {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: #0f172a;
+            background-color: #ffffff;
+            padding: 8px 16px;
+            border-radius: 8px;
+        }
+        .featured:hover .cta {
+            background-color: #e0f2fe;
+        }
+        .section-label {
+            margin: 0 0 12px 0;
+            font-size: 0.75rem;
+            font-weight: 600;
+            letter-spacing: 0.06em;
+            text-transform: uppercase;
+            color: #9ca3af;
+        }
     </style>
 </head>
 <body>
@@ -86,6 +148,16 @@
 <div class="container">
     <h1>Quality Control Dashboard</h1>
     <p class="subtitle">Standard Operating Procedures & Pre-Send Verification Hub</p>
+
+    <!-- Featured: Cold Email Builder -->
+    <a href="cornerstone_cold_email_builder.html" class="featured">
+        <span class="eyebrow">Main tool</span>
+        <h2>Cold Email Builder</h2>
+        <p>Write each email from your research: pick the prospect type and template, fill in what you found, and copy a checked, ready-to-send email. Tracks every send and your reply rate.</p>
+        <span class="cta">Open the builder &rarr;</span>
+    </a>
+
+    <p class="section-label">Checklists &amp; guides</p>
 
     <div class="checklist-grid">
         
