@@ -130,6 +130,7 @@ body.locked{overflow:hidden}
 select{width:100%;margin-top:.25rem;padding:.5rem .6rem;border:1px solid var(--line);border-radius:6px;background:var(--field);color:var(--ink);font:inherit;font-size:.92rem}
 .filters{display:grid;gap:.6rem;margin-bottom:1rem}
 .metric.hide{display:none}
+.auto{display:inline-block;margin-left:.4rem;font-size:.72rem;font-weight:600;color:var(--accent);border:1px solid var(--accent);border-radius:999px;padding:0 .45rem;white-space:nowrap;vertical-align:middle}
 #quickBtn[aria-pressed="true"]{background:var(--tape);color:var(--tape-ink);border-color:var(--tape)}
 body.quick .metric>h3,body.quick .metric>p,body.quick .metric>.ev,body.quick .metric>.note,body.quick .metric>ul.rules,body.quick .metric>.formula,body.quick .metric>.say,body.quick .wf,body.quick #sources{display:none}
 body.quick .cols{grid-template-columns:minmax(0,1fr)}
@@ -186,6 +187,7 @@ body.quick .metric{margin-top:2rem}
     <span>Problems found: <b id="pcount">0</b> · Flagged for video: <b id="fcount">0</b> of 3</span>
     <button type="button" id="reset">Start a new audit</button>
   </div>
+  <p class="test" id="autoNote" hidden></p>
   <ol class="steps">
     <li>Open the site on your phone first, then desktop.</li>
     <li>Work through the sections below and tick what’s wrong.</li>
@@ -1943,7 +1945,9 @@ body.quick .metric{margin-top:2rem}
 
 <script>
 (function(){
-  var KEY="painter-audit-v1";
+  var QS=new URLSearchParams(location.search),QSITE=QS.get("site")||"",QNAME=QS.get("name")||"",SITEKEY="";
+  try{if(QSITE)SITEKEY=new URL(QSITE).hostname.replace(/^www\./,"");}catch(e){}
+  var KEY="painter-audit-v1"+(SITEKEY?":"+SITEKEY:"");
   var METRICS=["m1","m2","m3","m4","m5","m6","m7","m8","m9","m10","m11","m12","m13","m14","m15","m16","m17","m18","m19","m20","m21","m22","m23","m24","m25","m26","m27","m28","m29","m30","m31","m32","m33","m34","m35","m36","m37","m38","m39","m40"];
   var TITLES={m1:"First impression and visual credibility",m2:"Headline and hero message",m3:"Estimate request form and button",m4:"Page speed on mobile",m5:"Service pages and service area",m6:"Google search listing",m7:"Reviews and proof",m8:"Navigation and mobile usability",m9:"Value proposition clarity",m10:"Differentiation",m11:"Benefits over features",m12:"Ideal customer fit",m13:"Risk reversal and guarantees",m14:"Offer and reason to act",m15:"Speed to lead",m16:"Pricing guidance",m17:"Trust badges and affiliations",m18:"Google Business Profile",m19:"Name, address, and phone consistency",m20:"LocalBusiness schema",m21:"FAQ content",m22:"Image SEO",m23:"Indexing basics",m24:"Helpful content",m25:"Readability and scannability",m26:"Visual hierarchy",m27:"Accessibility basics",m28:"Contact and hours clarity",m29:"Popups and interruptions",m30:"Favicon and share preview",m31:"Broken pages and links",m32:"Customer-focused, specific copy",m33:"Answering objections",m34:"Proof-backed claims",m35:"Consistent calls to action",m36:"Project stories",m37:"About and team",m38:"Customer as the hero",m39:"Video",m40:"Conversion tracking"};
   var META={m1:["UX","Core"],m2:["Copy","Core"],m3:["UX","Core"],m4:["Performance","Core"],m5:["SEO","Core"],m6:["SEO","Core"],m7:["Trust","Core"],m8:["UX","Core"],m9:["Strategy","Core"],m10:["Strategy","Core"],m11:["Copy","Core"],m12:["Strategy","Deep"],m13:["Trust","Core"],m14:["Strategy","Deep"],m15:["Strategy","Core"],m16:["Strategy","Deep"],m17:["Trust","Core"],m18:["SEO","Core"],m19:["SEO","Deep"],m20:["SEO","Deep"],m21:["SEO","Deep"],m22:["SEO","Deep"],m23:["SEO","Core"],m24:["SEO","Deep"],m25:["UX","Core"],m26:["UX","Core"],m27:["UX","Deep"],m28:["UX","Core"],m29:["UX","Core"],m30:["UX","Core"],m31:["UX","Deep"],m32:["Copy","Core"],m33:["Copy","Deep"],m34:["Copy","Core"],m35:["Copy","Core"],m36:["Story","Deep"],m37:["Story","Core"],m38:["Story","Deep"],m39:["Story","Deep"],m40:["Measurement","Deep"]};
@@ -2243,6 +2247,8 @@ body.quick .metric{margin-top:2rem}
   }
 
   load();
+  if(QSITE&&!state.f.url)state.f.url=QSITE.replace(/^https?:\/\//,"").replace(/\/$/,"");
+  if(QNAME&&!state.f.company)state.f.company=QNAME;
   METRICS.forEach(function(m){
     var s=document.getElementById(m);if(!s)return;
     var tape=s.querySelector(".tape");
@@ -2274,6 +2280,21 @@ body.quick .metric{margin-top:2rem}
   document.getElementById("copyEmail").addEventListener("click",function(){copyText(document.getElementById("email").textContent,"emailOk");});
   document.getElementById("copyFollow").addEventListener("click",function(){copyText(document.getElementById("followup").textContent,"followOk");});
   document.getElementById("copyNotes").addEventListener("click",function(){copyText(document.getElementById("vnotes").innerText,"notesOk");});
+  window.addEventListener("message",function(e){
+    if(window.parent===window||e.source!==window.parent)return;
+    if(!/^chrome-extension:\/\//.test(e.origin))return;
+    var d=e.data;if(!d||d.type!=="psa-detect"||!d.results)return;
+    var added=0,total=0;
+    Object.keys(d.results).forEach(function(id){
+      var c=document.querySelector('.checks input[data-id="'+id+'"]');if(!c)return;total++;
+      var lab=c.parentNode;
+      if(!lab.querySelector(".auto")){var s=document.createElement("span");s.className="auto";s.textContent="Detected";s.title=String(d.results[id]||"");lab.appendChild(s);}
+      if(!(id in state.c)){c.checked=true;state.c[id]=true;added++;}
+    });
+    var note=document.getElementById("autoNote");
+    if(note){note.hidden=false;note.textContent=total?("The extension detected "+total+" possible issue"+(total===1?"":"s")+" on this page (marked “Detected”; hover for details). "+(added?added+" were ticked for you. ":"")+"Confirm each one before using it in a video."):"The extension found no technical issues on this page. Manual checks still apply.";}
+    render();
+  });
   render();
 })();
 </script>
