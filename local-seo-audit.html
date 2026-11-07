@@ -1,0 +1,1192 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Local SEO Audit</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;700;800&family=Public+Sans:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#F6F7F4;--surface:#FFFFFF;--ink:#1F2B33;--muted:#5A6670;--line:#D9DDD6;
+  --tape:#E8C15A;--tape-ink:#3D3108;--good:#2E6B57;--good-bg:#E6F0EA;--bad:#A3412E;--bad-bg:#F6E6E1;
+  --accent:#2B5C7A;--accent-ink:#FFFFFF;--field:#FBFBF9;
+  color-scheme:light;
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px);
+  padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --bg:#141A1E;--surface:#1C2429;--ink:#E8ECE9;--muted:#9AA6AE;--line:#2E3A41;
+    --tape:#D9B24C;--tape-ink:#2B2206;--good:#7CC7A8;--good-bg:#1E3029;--bad:#E8957F;--bad-bg:#3A2420;
+    --accent:#7FB3D3;--accent-ink:#0E1A22;--field:#172024;color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#141A1E;--surface:#1C2429;--ink:#E8ECE9;--muted:#9AA6AE;--line:#2E3A41;
+  --tape:#D9B24C;--tape-ink:#2B2206;--good:#7CC7A8;--good-bg:#1E3029;--bad:#E8957F;--bad-bg:#3A2420;
+  --accent:#7FB3D3;--accent-ink:#0E1A22;--field:#172024;color-scheme:dark;
+}
+*,*::before,*::after{box-sizing:inherit}
+html{scroll-padding-top:calc(env(safe-area-inset-top,0px) + 72px)}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.6 "Public Sans",system-ui,-apple-system,"Segoe UI",sans-serif}
+.wrap{max-width:860px;margin:0 auto;padding:2rem 1.25rem 4rem}
+h1,h2,h3{font-family:Archivo,"Arial Narrow",system-ui,sans-serif;line-height:1.2;margin:0}
+h1{font-size:clamp(2rem,6vw,3rem);font-weight:800;letter-spacing:-0.02em}
+h2{font-size:1.55rem;font-weight:800}
+h3{font-size:1.05rem;font-weight:700;margin:1.5rem 0 .5rem}
+p{margin:.5rem 0}
+a{color:var(--accent)}
+.lede{color:var(--muted);max-width:62ch;margin-top:.75rem}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:1.25rem}
+.setup{margin-top:1.75rem}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:.75rem}
+label.f{display:block;font-size:.85rem;color:var(--muted);font-weight:600}
+input[type=text],input[type=url],textarea{width:100%;margin-top:.25rem;padding:.55rem .65rem;border:1px solid var(--line);border-radius:6px;background:var(--field);color:var(--ink);font:inherit;font-size:.95rem}
+textarea{min-height:4.5rem;resize:vertical}
+input:focus-visible,textarea:focus-visible,button:focus-visible,a:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.bar{display:flex;flex-wrap:wrap;gap:.75rem 1.5rem;align-items:center;justify-content:space-between;margin-top:1rem;font-size:.92rem;color:var(--muted)}
+.bar b{color:var(--ink)}
+button{font:inherit;font-size:.9rem;font-weight:600;cursor:pointer;border-radius:6px;padding:.5rem .9rem;border:1px solid var(--line);background:var(--surface);color:var(--ink)}
+button.primary{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+.steps{margin:1rem 0 0;padding-left:1.25rem;color:var(--muted);font-size:.95rem}
+.steps li{margin:.2rem 0}
+.metric{margin-top:3rem}
+.mhead{display:flex;gap:1rem;align-items:flex-start;justify-content:space-between;flex-wrap:wrap}
+.tape{display:inline-block;background:var(--tape);color:var(--tape-ink);font:800 .85rem Archivo,system-ui,sans-serif;padding:.2rem .7rem;transform:rotate(-2deg);margin-bottom:.6rem;box-shadow:0 1px 0 rgba(0,0,0,.08)}
+.q{color:var(--muted);margin:.35rem 0 0;max-width:60ch}
+.flag{white-space:nowrap}
+.flag[aria-pressed="true"]{background:var(--tape);color:var(--tape-ink);border-color:var(--tape)}
+.cols{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,1fr);gap:1.25rem;margin-top:1.25rem}
+@media (max-width:720px){.cols{grid-template-columns:minmax(0,1fr)}}
+.checks{list-style:none;margin:0;padding:0}
+.checks li{border-bottom:1px solid var(--line)}
+.checks li:last-child{border-bottom:0}
+.checks label{display:flex;gap:.65rem;align-items:flex-start;padding:.55rem 0;cursor:pointer;font-size:.95rem}
+.checks input{margin-top:.3rem;width:1.05rem;height:1.05rem;accent-color:var(--bad);flex:none}
+.count{font-size:.85rem;color:var(--muted);margin-top:.5rem}
+.wf{display:grid;grid-template-columns:1fr 1fr;gap:.6rem}
+.wf figure{margin:0}
+.wf figcaption{font-size:.8rem;font-weight:600;margin-bottom:.3rem}
+.wf .now figcaption{color:var(--bad)}.wf .better figcaption{color:var(--good)}
+.wf svg{width:100%;height:auto;display:block;border:1px solid var(--line);border-radius:6px;background:var(--field)}
+.s-line{fill:var(--line)}.s-ink{fill:var(--muted)}.s-acc{fill:var(--accent)}.s-good{fill:var(--good)}.s-bad{fill:var(--bad)}.s-tape{fill:var(--tape)}
+.s-stroke{fill:none;stroke:var(--muted);stroke-width:1.2}
+.s-text{fill:var(--muted);font:600 9px "Public Sans",system-ui,sans-serif}
+.s-text-acc{fill:var(--accent-ink);font:700 8px "Public Sans",system-ui,sans-serif}
+.ev{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:.75rem;margin-top:.5rem}
+.case{border-radius:8px;padding:.9rem 1rem;font-size:.93rem}
+.case.right{background:var(--good-bg)}.case.wrong{background:var(--bad-bg)}
+.case h4{margin:0 0 .3rem;font:700 .9rem Archivo,system-ui,sans-serif}
+.case.right h4{color:var(--good)}.case.wrong h4{color:var(--bad)}
+.etype{display:block;margin-top:.5rem;font-size:.8rem;color:var(--muted)}
+.note{border-left:3px solid var(--tape);padding:.5rem .9rem;margin:1rem 0;font-size:.93rem;background:var(--surface)}
+.rules{margin:.25rem 0 0;padding-left:1.2rem}
+.rules li{margin:.4rem 0}
+.formula{font-family:Archivo,system-ui,sans-serif;font-weight:700;background:var(--field);border:1px dashed var(--line);border-radius:6px;padding:.6rem .8rem;margin:.5rem 0}
+.say{margin-top:1.25rem;background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:.9rem 1rem}
+.say b{display:block;font-size:.85rem;color:var(--muted);margin-bottom:.2rem}
+.notes-empty{color:var(--muted);font-size:.95rem}
+.vnote{border-top:1px solid var(--line);padding-top:.75rem;margin-top:.75rem}
+.vnote:first-child{border-top:0;padding-top:0;margin-top:0}
+.vnote h4{margin:0 0 .25rem;font:700 1rem Archivo,system-ui,sans-serif}
+.vnote ul{margin:.25rem 0;padding-left:1.2rem;font-size:.93rem;color:var(--muted)}
+pre.out{white-space:pre-wrap;word-wrap:break-word;font:15px/1.6 "Public Sans",system-ui,sans-serif;background:var(--field);border:1px solid var(--line);border-radius:8px;padding:1rem;margin:.75rem 0 0}
+.row{display:flex;gap:.5rem;flex-wrap:wrap;align-items:center;margin-top:.75rem}
+.ok{font-size:.85rem;color:var(--good)}
+.subjects{margin:.25rem 0 0;padding-left:1.2rem}
+.sources{font-size:.88rem;color:var(--muted)}
+.sources li{margin:.35rem 0}
+.topbar{position:sticky;top:env(safe-area-inset-top,0px);z-index:20;background:var(--bg);border-bottom:1px solid var(--line)}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:21;background:var(--bg)}
+.topbar-in{max-width:860px;margin:0 auto;padding:.6rem 1.25rem;display:flex;gap:.5rem;align-items:center;justify-content:space-between}
+.tb-stats{font-size:.85rem;color:var(--muted)}
+.tb-stats b{color:var(--ink)}
+.tb-right{display:flex;gap:.4rem}
+@media (max-width:560px){.tb-stats{display:none}}
+.metric,.setup{scroll-margin-top:calc(env(safe-area-inset-top,0px) + 72px)}
+.drawer{position:fixed;top:0;bottom:0;z-index:40;overflow-y:auto;background:var(--surface);box-shadow:0 0 0 1px var(--line);padding:calc(env(safe-area-inset-top,0px) + 1rem) 1.1rem calc(env(safe-area-inset-bottom,0px) + 1.5rem);visibility:hidden;transition:transform .22s ease,visibility .22s}
+.drawer.left{left:0;width:min(320px,86vw);transform:translateX(-100%)}
+.drawer.right{right:0;width:min(500px,94vw);transform:translateX(100%)}
+.drawer.open{transform:none;visibility:visible}
+.overlay{position:fixed;inset:0;z-index:30;background:rgba(0,0,0,.4)}
+.overlay[hidden]{display:none}
+body.locked{overflow:hidden}
+.dhead{display:flex;justify-content:space-between;align-items:center;gap:.5rem;margin-bottom:.75rem}
+.toc{list-style:none;margin:0;padding:0}
+.toc a{display:flex;justify-content:space-between;align-items:baseline;gap:.75rem;padding:.55rem .6rem;border-radius:6px;text-decoration:none;color:var(--ink);font-size:.95rem}
+.toc a:hover{background:var(--field)}
+.toc .num{color:var(--muted);font-size:.8rem;display:block}
+.toc .meta{font-size:.78rem;color:var(--muted);white-space:nowrap}
+.toc .meta.flagged{background:var(--tape);color:var(--tape-ink);padding:0 .4rem;border-radius:4px}
+.dlinks{margin-top:1rem;border-top:1px solid var(--line);padding-top:1rem;display:grid;gap:.5rem}
+.tabs{display:flex;gap:.4rem;margin-bottom:1rem}
+.tabs [aria-selected="true"]{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+.drawer .panel{background:var(--bg)}
+.chip{display:inline-block;margin-left:.5rem;font-size:.75rem;font-weight:600;color:var(--muted);border:1px solid var(--line);border-radius:999px;padding:.05rem .55rem;vertical-align:middle}
+.test{font-size:.88rem;margin:.6rem 0 0;padding:.5rem .65rem;background:var(--field);border-radius:6px;border:1px dashed var(--line)}
+select{width:100%;margin-top:.25rem;padding:.5rem .6rem;border:1px solid var(--line);border-radius:6px;background:var(--field);color:var(--ink);font:inherit;font-size:.92rem}
+.filters{display:grid;gap:.6rem;margin-bottom:1rem}
+.metric.hide{display:none}
+.auto{display:inline-block;margin-left:.4rem;font-size:.72rem;font-weight:600;color:var(--accent);border:1px solid var(--accent);border-radius:999px;padding:0 .45rem;white-space:nowrap;vertical-align:middle}
+#quickBtn[aria-pressed="true"]{background:var(--tape);color:var(--tape-ink);border-color:var(--tape)}
+body.quick .metric>h3,body.quick .metric>p,body.quick .metric>.ev,body.quick .metric>.note,body.quick .metric>ul.rules,body.quick .metric>.formula,body.quick .metric>.say,body.quick .wf,body.quick #sources{display:none}
+body.quick .cols{grid-template-columns:minmax(0,1fr)}
+body.quick .metric{margin-top:2rem}
+@media (max-width:420px){.topbar button{padding:.45rem .55rem;font-size:.82rem}}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+
+.cols.one{grid-template-columns:minmax(0,1fr)}
+code{font-size:.9em;background:var(--field);padding:0 .25rem;border-radius:4px}
+</style>
+</head>
+<body>
+<header class="topbar">
+  <div class="topbar-in">
+    <button type="button" id="openToc" aria-controls="tocDrawer" aria-expanded="false">Contents</button>
+    <span class="tb-stats">Problems <b id="tbP">0</b> · Checks with issues <b id="tbF">0</b></span>
+    <span class="tb-right">
+      <button type="button" id="quickBtn" aria-pressed="false">Quick scan</button>
+      <button type="button" class="primary" id="openReport" aria-controls="reportDrawer" aria-expanded="false">Findings</button>
+    </span>
+  </div>
+</header>
+
+<aside class="drawer left" id="tocDrawer" role="dialog" aria-modal="true" aria-labelledby="toc-h" aria-hidden="true">
+  <div class="dhead"><h2 id="toc-h" style="font-size:1.1rem">Contents</h2><button type="button" class="dclose" data-close>Close</button></div>
+  <div class="filters">
+    <label class="f">Access
+      <select id="fAccess"><option value="all">All checks</option><option value="Outside">Outside (no access needed)</option><option value="Needs access">Needs access (client accounts)</option></select></label>
+    <label class="f">Category
+      <select id="fCat"><option value="all">All categories</option><option>On-page</option><option>Local</option><option>Technical</option><option>Content</option><option>Measurement</option></select></label>
+  </div>
+  <ul class="toc" id="tocList"></ul>
+  <div class="dlinks"><button type="button" data-open-report>Open findings report</button></div>
+</aside>
+<div class="overlay" id="overlay" hidden></div>
+
+<aside class="drawer right" id="reportDrawer" role="dialog" aria-modal="true" aria-labelledby="rep-h" aria-hidden="true">
+  <div class="dhead"><h2 id="rep-h" style="font-size:1.1rem">Findings report</h2><button type="button" class="dclose" data-close>Close</button></div>
+  <p class="q" style="margin-top:0">Every problem you ticked, paired with its fix, in check order. Paste it into a proposal or your call notes, and edit before sending.</p>
+  <pre class="out" id="report"></pre>
+  <div class="row"><button type="button" class="primary" id="copyReport">Copy report</button><span class="ok" id="reportOk" aria-live="polite"></span></div>
+</aside>
+
+<div class="wrap">
+<header>
+  <h1>Local SEO audit</h1>
+  <p class="lede">A deeper search audit for painting and home-service contractors: on-page, local, technical, content, and measurement. Use it after a prospect replies, before a sales call, or as a paid audit. Tick each problem you find; the findings report builds itself.</p>
+</header>
+
+<section class="panel setup" id="setup" aria-labelledby="setup-h">
+  <h2 id="setup-h" style="font-size:1.15rem">This audit</h2>
+  <div class="grid" style="margin-top:.75rem">
+    <label class="f">Company<input type="text" id="company" placeholder="Sunshine Painting Co."></label>
+    <label class="f">Website<input type="url" id="url" placeholder="sunshinepainting.com"></label>
+    <label class="f">Main city or area<input type="text" id="city" placeholder="Tampa, FL"></label>
+    <label class="f">Main service to rank for<input type="text" id="service" placeholder="house painting"></label>
+  </div>
+  <div class="bar">
+    <span>Problems found: <b id="pcount">0</b> · Checks with issues: <b id="fcount">0</b></span>
+    <button type="button" id="reset">Start a new audit</button>
+  </div>
+  <p class="test" id="autoNote" hidden></p>
+  <ol class="steps">
+    <li><b>Outside</b> checks need only a browser. <b>Needs access</b> checks require the owner’s Search Console, Google Business Profile, or analytics.</li>
+    <li>Audit the homepage and the main service page first, then one city page if they have any.</li>
+    <li>Open <b>Findings</b> at any time for a ready-to-edit summary.</li>
+  </ol>
+</section>
+
+<section class="metric" id="myths" aria-labelledby="myths-h">
+  <span class="tape">Read first</span>
+  <h2 id="myths-h">Myths to avoid</h2>
+  <p class="q">Never recommend these. They’re outdated, unproven, or against Google’s rules.</p>
+  <div class="panel" style="margin-top:1rem">
+    <ul class="rules" style="margin:0">
+      <li><b>Meta keywords tag:</b> Google announced in 2009 that it doesn’t use it for ranking.</li>
+      <li><b>Keyword density targets:</b> there’s no magic percentage. Repeating a phrase unnaturally is keyword stuffing, which Google’s spam policies name.</li>
+      <li><b>Minimum word counts:</b> Google has said word count isn’t a ranking factor. Pages should be as long as the topic needs.</li>
+      <li><b>Star ratings from your own reviews:</b> since 2019, Google doesn’t show review stars in search for a business’s reviews of itself, even through a widget.</li>
+      <li><b>FAQ schema for search snippets:</b> Google limited FAQ rich results in 2023, and reporting in 2026 says it stopped showing them entirely.</li>
+      <li><b>Copy-paste city pages:</b> Google’s spam policies treat pages targeting cities that funnel to one place as doorway pages.</li>
+      <li><b>Buying links or reviews:</b> link schemes violate Google’s spam policies, and fake reviews are banned by the FTC’s 2024 rule.</li>
+    </ul>
+  </div>
+</section>
+
+<!-- S1 -->
+<section class="metric" id="s1" aria-labelledby="s1-h">
+  <div class="mhead"><div><span class="tape">Check 1</span><h2 id="s1-h">Title tags</h2><p class="q">Does each page’s title say what it is, where, and who?</p></div></div>
+  <div class="cols">
+    <div class="panel"><h3 style="margin-top:0">Spot it</h3>
+      <ul class="checks" data-metric="s1">
+        <li><label><input type="checkbox" data-id="s1a"><span>The homepage title is “Home” or just the company name</span></label></li>
+        <li><label><input type="checkbox" data-id="s1b"><span>Service pages don’t include the service and the city or area</span></label></li>
+        <li><label><input type="checkbox" data-id="s1c"><span>Several pages share the same title</span></label></li>
+        <li><label><input type="checkbox" data-id="s1d"><span>Titles are cut off in search or stuffed with keywords</span></label></li>
+      </ul><p class="count" data-count="s1">0 problems found</p></div>
+    <div class="wf" aria-label="Wireframe comparison: vague title versus descriptive title">
+      <figure class="now"><figcaption>Common now</figcaption><svg viewBox="0 0 160 120" role="img" aria-label="Search result titled Home"><text x="8" y="22" class="s-text">sunshinepainting.com</text><text x="8" y="40" class="s-text" style="fill:var(--accent);font-size:11px">Home</text><text x="8" y="58" class="s-text">Welcome to our website…</text></svg></figure>
+      <figure class="better"><figcaption>Better</figcaption><svg viewBox="0 0 160 120" role="img" aria-label="Search result with service and city in title"><text x="8" y="22" class="s-text">sunshinepainting.com</text><text x="8" y="40" class="s-text" style="fill:var(--accent);font-size:10px">House Painters in Tampa, FL |</text><text x="8" y="52" class="s-text" style="fill:var(--accent);font-size:10px">Sunshine Painting</text><text x="8" y="70" class="s-text">Interior and exterior painting…</text></svg></figure>
+    </div>
+  </div>
+  <h3>Why it matters</h3>
+  <p>Google says it builds the clickable title in search results mainly from the page’s title element, and that title is often the main thing people read before choosing a result. Google’s guidance asks for unique, descriptive, concise titles and specifically warns against vague titles like “Home,” repeated boilerplate, and keyword stuffing.</p>
+  <div class="ev">
+    <div class="case right"><h4>Evidence</h4><p>Google recommends a unique, descriptive title for every page, with the brand added concisely.</p><span class="etype">Evidence type: official Google Search Central documentation (“Influencing your title links”).</span></div>
+    <div class="case wrong"><h4>Got it wrong</h4><p>Google lists vague descriptors like “Home,” identical titles across pages, and keyword-stuffed titles as common problems that lead it to rewrite the title link.</p><span class="etype">Evidence type: same documentation.</span></div>
+  </div>
+  <h3>How to fix it</h3>
+  <div class="formula">[Service] in [City] | [Company]</div>
+  <ul class="rules">
+    <li><b>Homepage:</b> the main service and area plus the brand. “House Painters in Tampa, FL | Sunshine Painting.”</li>
+    <li><b>Each service page:</b> its own service and area. “Cabinet Painting in Tampa | Sunshine Painting.”</li>
+    <li><b>Unique, front-loaded, short enough</b> not to be cut off. Google has no official length limit.</li>
+  </ul>
+</section>
+
+<!-- S2 -->
+<section class="metric" id="s2" aria-labelledby="s2-h">
+  <div class="mhead"><div><span class="tape">Check 2</span><h2 id="s2-h">Meta descriptions</h2><p class="q">Does each page have a short, unique summary that makes someone want to click?</p></div></div>
+  <div class="cols one">
+    <div class="panel"><h3 style="margin-top:0">Spot it</h3>
+      <ul class="checks" data-metric="s2">
+        <li><label><input type="checkbox" data-id="s2a"><span>Key pages have no meta description</span></label></li>
+        <li><label><input type="checkbox" data-id="s2b"><span>The same description is reused across pages</span></label></li>
+        <li><label><input type="checkbox" data-id="s2c"><span>The description is generic or stuffed with keywords</span></label></li>
+      </ul><p class="count" data-count="s2">0 problems found</p></div>
+  </div>
+  <h3>Why it matters</h3>
+  <p>Google says it sometimes uses the meta description for the snippet under a result, when it describes the page better than text pulled from the page. Google has said for years that meta descriptions aren’t used for ranking, so their value is in what people see and whether they click.</p>
+  <div class="ev">
+    <div class="case right"><h4>Evidence</h4><p>Google recommends unique descriptions that accurately summarize each page.</p><span class="etype">Evidence type: official Google Search Central documentation (snippets).</span></div>
+    <div class="case wrong"><h4>Evidence gap</h4><p>No reliable public study measures meta description changes for local contractors. Present this as a clarity fix, not a ranking boost.</p><span class="etype">Honest note.</span></div>
+  </div>
+  <h3>How to fix it</h3>
+  <ul class="rules">
+    <li><b>One or two sentences:</b> what, where, proof, and next step. “Interior and exterior painting for Tampa homes. 180+ Google reviews. Free written estimates.”</li>
+    <li><b>Unique for each important page.</b></li>
+    <li><b>Real numbers only,</b> and expect Google to rewrite it sometimes.</li>
+  </ul>
+</section>
+
+<!-- S3 -->
+<section class="metric" id="s3" aria-labelledby="s3-h">
+  <div class="mhead"><div><span class="tape">Check 3</span><h2 id="s3-h">Headings (H1 and H2s)</h2><p class="q">Do the headings outline the page clearly, starting with the service and area?</p></div></div>
+  <div class="cols">
+    <div class="panel"><h3 style="margin-top:0">Spot it</h3>
+      <ul class="checks" data-metric="s3">
+        <li><label><input type="checkbox" data-id="s3a"><span>No H1, or the H1 is the logo, an image, or “Welcome”</span></label></li>
+        <li><label><input type="checkbox" data-id="s3b"><span>The H1 doesn’t mention the service and area</span></label></li>
+        <li><label><input type="checkbox" data-id="s3c"><span>No clear H2 sections, or headings used just to make text big</span></label></li>
+      </ul><p class="count" data-count="s3">0 problems found</p></div>
+    <div class="wf" aria-label="Wireframe comparison: messy heading outline versus clear outline">
+      <figure class="now"><figcaption>Common now</figcaption><svg viewBox="0 0 160 120" role="img" aria-label="Outline with H1 Welcome and random headings"><g class="s-text" style="font-family:monospace;font-size:8px"><text x="8" y="22">H1 Welcome!</text><text x="8" y="40">H3 Call today</text><text x="8" y="58">H1 Quality work</text><text x="8" y="76">H4 Our team</text></g></svg></figure>
+      <figure class="better"><figcaption>Better</figcaption><svg viewBox="0 0 160 120" role="img" aria-label="Outline with one H1 and clear H2s"><g class="s-text" style="font-family:monospace;font-size:8px"><text x="8" y="22" style="fill:var(--ink)">H1 House Painting in Tampa</text><text x="16" y="40">H2 Interior painting</text><text x="16" y="58">H2 Exterior painting</text><text x="16" y="76">H2 Our process</text><text x="16" y="94">H2 Reviews</text></g></svg></figure>
+    </div>
+  </div>
+  <h3>Why it matters</h3>
+  <p>Google’s John Mueller has said headings help Google understand what each part of a page is about. He has also said there’s no special ranking boost from an H1 and that multiple H1s are handled fine. Treat headings as structure and clarity, not a trick.</p>
+  <div class="ev">
+    <div class="case right"><h4>Evidence</h4><p>Google representatives describe headings as a signal of what a page section covers.</p><span class="etype">Evidence type: public statements by Google (John Mueller, 2019).</span></div>
+    <div class="case wrong"><h4>Evidence gap</h4><p>Heading changes alone rarely move rankings much. Recommend them as part of a page rework, not as a standalone fix.</p><span class="etype">Honest note.</span></div>
+  </div>
+  <h3>How to fix it</h3>
+  <ul class="rules">
+    <li><b>H1 = the page’s main topic</b> in real text: service plus area.</li>
+    <li><b>H2s for main sections:</b> each service, process, projects, reviews, areas served.</li>
+    <li><b>Style with CSS,</b> not heading tags.</li>
+  </ul>
+</section>
+
+<!-- S4 -->
+<section class="metric" id="s4" aria-labelledby="s4-h">
+  <div class="mhead"><div><span class="tape">Check 4</span><h2 id="s4-h">Content matches what homeowners search</h2><p class="q">Does each page use the words people actually search for, and answer what they want to know?</p></div></div>
+  <div class="cols one">
+    <div class="panel"><h3 style="margin-top:0">Spot it</h3>
+      <ul class="checks" data-metric="s4">
+        <li><label><input type="checkbox" data-id="s4a"><span>Pages don’t use the words homeowners search for (for example “cabinet painting” instead of only “finishing solutions”)</span></label></li>
+        <li><label><input type="checkbox" data-id="s4b"><span>Service pages are thin: a few lines that could fit any company</span></label></li>
+        <li><label><input type="checkbox" data-id="s4c"><span>Keyword cannibalization: several pages target the same service and city, so they compete (for example, a service page, a city page, and old blog posts)</span></label></li>
+        <li><label><input type="checkbox" data-id="s4d"><span>Keyword stuffing: city or service names repeated unnaturally</span></label></li>
+      </ul><p class="count" data-count="s4">0 problems found</p></div>
+  </div>
+  <h3>Why it matters</h3>
+  <p>Google’s SEO Starter Guide advises thinking about the words people would use to look for your content, and its helpful-content guidance asks for pages written for people with first-hand expertise. Its spam policies name keyword stuffing, including blocks of city names, as a violation.</p>
+  <div class="ev">
+    <div class="case right"><h4>Evidence</h4><p>Google recommends people-first content that uses the words searchers use and shows real expertise.</p><span class="etype">Evidence type: official Google Search Central guidance (SEO Starter Guide; helpful content).</span></div>
+    <div class="case wrong"><h4>Got it wrong</h4><p>Google’s spam policies list keyword stuffing, such as repeating words unnaturally or listing cities a page is trying to rank for, as a violation.</p><span class="etype">Evidence type: official Google spam policies.</span></div>
+  </div>
+  <div class="note"><b>Testing for keyword cannibalization.</b> Outside: search <code>site:theirdomain.com cabinet painting</code> (swap in each main service) and see whether several similar pages come up. With access: in Search Console’s Performance report, click a main query and open the Pages tab; several URLs sharing impressions for it is the clearest sign. Honest note: Google’s John Mueller has said this isn’t a penalty, and several pages appearing for a topic isn’t always a problem. It matters when similar pages split attention and the wrong one shows up, like an old blog post instead of the service page.</div>
+  <h3>How to fix it</h3>
+  <ul class="rules">
+    <li><b>Find the real phrases:</b> type “[service] [city]” into Google and note the autocomplete suggestions and “People also ask” questions.</li>
+    <li><b>Fix cannibalization:</b> choose the one page that should rank for each service-and-area target. Merge weaker duplicates into it with 301 redirects, or rewrite them to cover a clearly different topic, and link from related pages to the main one with descriptive text.</li>
+    <li><b>Answer the real questions</b> on each page: process, timeline, prep, cost factors, photos of that work.</li>
+    <li><b>Write naturally;</b> mention the area where it fits, not in every sentence.</li>
+  </ul>
+</section>
+
+<!-- S5 -->
+<section class="metric" id="s5" aria-labelledby="s5-h">
+  <div class="mhead"><div><span class="tape">Check 5</span><h2 id="s5-h">Internal links</h2><p class="q">Do the site’s own links connect services, areas, and projects with clear link text?</p></div></div>
+  <div class="cols">
+    <div class="panel"><h3 style="margin-top:0">Spot it</h3>
+      <ul class="checks" data-metric="s5">
+        <li><label><input type="checkbox" data-id="s5a"><span>Service pages aren’t linked from the homepage or menu</span></label></li>
+        <li><label><input type="checkbox" data-id="s5b"><span>Link text is generic (“click here,” “learn more,” “read more”)</span></label></li>
+        <li><label><input type="checkbox" data-id="s5c"><span>City or project pages have no links pointing to them</span></label></li>
+        <li><label><input type="checkbox" data-id="s5d"><span>Navigation uses JavaScript buttons instead of real links</span></label></li>
+      </ul><p class="count" data-count="s5">0 problems found</p></div>
+    <div class="wf" aria-label="Wireframe comparison: isolated pages versus connected pages">
+      <figure class="now"><figcaption>Common now</figcaption><svg viewBox="0 0 160 120" role="img" aria-label="Homepage with pages not connected"><rect x="60" y="10" width="40" height="18" class="s-acc" rx="3"/><text x="80" y="22" text-anchor="middle" class="s-text-acc">Home</text><g class="s-stroke"><rect x="8" y="80" width="40" height="18"/><rect x="60" y="80" width="40" height="18"/><rect x="112" y="80" width="40" height="18"/></g><text x="28" y="92" text-anchor="middle" class="s-text" style="font-size:7px">Cabinets</text><text x="80" y="92" text-anchor="middle" class="s-text" style="font-size:7px">Brandon</text><text x="132" y="92" text-anchor="middle" class="s-text" style="font-size:7px">Project</text></svg></figure>
+      <figure class="better"><figcaption>Better</figcaption><svg viewBox="0 0 160 120" role="img" aria-label="Homepage linked to service, city, and project pages, which link to each other"><rect x="60" y="10" width="40" height="18" class="s-acc" rx="3"/><text x="80" y="22" text-anchor="middle" class="s-text-acc">Home</text><g style="stroke:var(--good);stroke-width:1.2"><line x1="80" y1="28" x2="28" y2="80"/><line x1="80" y1="28" x2="80" y2="80"/><line x1="80" y1="28" x2="132" y2="80"/><line x1="48" y1="89" x2="60" y2="89"/><line x1="100" y1="89" x2="112" y2="89"/></g><g class="s-stroke"><rect x="8" y="80" width="40" height="18"/><rect x="60" y="80" width="40" height="18"/><rect x="112" y="80" width="40" height="18"/></g><text x="28" y="92" text-anchor="middle" class="s-text" style="font-size:7px">Cabinets</text><text x="80" y="92" text-anchor="middle" class="s-text" style="font-size:7px">Brandon</text><text x="132" y="92" text-anchor="middle" class="s-text" style="font-size:7px">Project</text></svg></figure>
+    </div>
+  </div>
+  <h3>Why it matters</h3>
+  <p>Google’s link guidance says it uses links to find pages and uses the link text to understand what the linked page is about. Links need to be real HTML links (an <code>a</code> element with an <code>href</code>) for Google to follow them reliably, and the link text should be descriptive.</p>
+  <div class="ev">
+    <div class="case right"><h4>Evidence</h4><p>Google recommends descriptive, concise anchor text that’s relevant to the page it links to.</p><span class="etype">Evidence type: official Google Search Central documentation (link best practices).</span></div>
+    <div class="case wrong"><h4>Got it wrong</h4><p>Google notes that it can’t reliably follow links that aren’t real HTML links, such as elements that only navigate through JavaScript.</p><span class="etype">Evidence type: same documentation.</span></div>
+  </div>
+  <h3>How to fix it</h3>
+  <ul class="rules">
+    <li><b>Link every service page</b> from the menu and the homepage.</li>
+    <li><b>Use descriptive link text:</b> “see our cabinet painting work,” not “click here.”</li>
+    <li><b>Connect related pages:</b> service ↔ city ↔ project write-ups.</li>
+    <li><b>Use real links</b> for navigation.</li>
+  </ul>
+</section>
+
+<!-- S6 -->
+<section class="metric" id="s6" aria-labelledby="s6-h">
+  <div class="mhead"><div><span class="tape">Check 6</span><h2 id="s6-h">URLs</h2><p class="q">Are page addresses short, readable, and descriptive?</p></div></div>
+  <div class="cols">
+    <div class="panel"><h3 style="margin-top:0">Spot it</h3>
+      <ul class="checks" data-metric="s6">
+        <li><label><input type="checkbox" data-id="s6a"><span>URLs with IDs or parameters (?page_id=123)</span></label></li>
+        <li><label><input type="checkbox" data-id="s6b"><span>Non-descriptive URLs (/page-2/, /services-1/)</span></label></li>
+        <li><label><input type="checkbox" data-id="s6c"><span>Underscores between words, or very long URLs</span></label></li>
+      </ul><p class="count" data-count="s6">0 problems found</p></div>
+    <div class="wf" aria-label="Wireframe comparison: ID-based URL versus readable URL">
+      <figure class="now"><figcaption>Common now</figcaption><svg viewBox="0 0 160 120" role="img" aria-label="URL with page id"><rect x="8" y="40" width="144" height="18" rx="9" class="s-stroke"/><text x="14" y="52" class="s-text" style="font-family:monospace;font-size:7px">abcpainting.com/?page_id=123</text></svg></figure>
+      <figure class="better"><figcaption>Better</figcaption><svg viewBox="0 0 160 120" role="img" aria-label="Readable URL"><rect x="8" y="40" width="144" height="18" rx="9" class="s-stroke"/><text x="14" y="52" class="s-text" style="font-family:monospace;font-size:7px">abcpainting.com/cabinet-painting/</text></svg></figure>
+    </div>
+  </div>
+  <h3>Why it matters</h3>
+  <p>Google’s URL structure guidance recommends simple, readable URLs using words, with hyphens rather than underscores between words. Readable URLs also help people understand a link before they click.</p>
+  <div class="ev">
+    <div class="case right"><h4>Evidence</h4><p>Google recommends descriptive words in URLs and hyphens to separate them.</p><span class="etype">Evidence type: official Google Search Central documentation (URL structure).</span></div>
+    <div class="case wrong"><h4>Got it wrong</h4><p>Changing URLs without redirects breaks links and can lose the pages’ existing search visibility.</p><span class="etype">Evidence type: official Google guidance on site moves and redirects.</span></div>
+  </div>
+  <div class="note">URL fixes are rarely urgent on an established site. If you change any, set up permanent (301) redirects from every old URL, and update internal links.</div>
+  <h3>How to fix it</h3>
+  <ul class="rules">
+    <li><b>Use readable slugs</b> for new pages: /cabinet-painting/, /areas/brandon/.</li>
+    <li><b>Hyphens between words,</b> lowercase, short.</li>
+    <li><b>Redirect any changed URL</b> with a 301.</li>
+  </ul>
+</section>
+
+<!-- S7 -->
+<section class="metric" id="s7" aria-labelledby="s7-h">
+  <div class="mhead"><div><span class="tape">Check 7</span><h2 id="s7-h">Image SEO</h2><p class="q">Are project photos described, named, sized, and placed where they help?</p></div></div>
+  <div class="cols one">
+    <div class="panel"><h3 style="margin-top:0">Spot it</h3>
+      <ul class="checks" data-metric="s7">
+        <li><label><input type="checkbox" data-id="s7a"><span>Images missing alt text, or alt text like “image1”</span></label></li>
+        <li><label><input type="checkbox" data-id="s7b"><span>Camera file names (IMG_2034.jpg)</span></label></li>
+        <li><label><input type="checkbox" data-id="s7c"><span>Images are several megabytes or much larger than displayed</span></label></li>
+        <li><label><input type="checkbox" data-id="s7d"><span>Important text (services, phone, prices) is inside images</span></label></li>
+        <li><label><input type="checkbox" data-id="s7e"><span>Alt text stuffed with keywords</span></label></li>
+      </ul><p class="count" data-count="s7">0 problems found</p></div>
+  </div>
+  <h3>Why it matters</h3>
+  <p>Google’s image guidance says it uses alt text, along with computer vision and the surrounding page, to understand images, and that descriptive file names give light clues. Alt text is also what screen readers announce. Oversized images slow pages down.</p>
+  <div class="ev">
+    <div class="case right"><h4>Evidence</h4><p>Google recommends descriptive, in-context alt text and short descriptive file names, placed near relevant text.</p><span class="etype">Evidence type: official Google image SEO best practices.</span></div>
+    <div class="case wrong"><h4>Got it wrong</h4><p>Google warns against filling alt text with keywords, which creates a poor experience and can look like spam.</p><span class="etype">Evidence type: same documentation.</span></div>
+  </div>
+  <h3>How to fix it</h3>
+  <ul class="rules">
+    <li><b>Describe the photo:</b> “Two-story home repainted navy with white trim, Brandon, FL.”</li>
+    <li><b>Rename before uploading:</b> exterior-repaint-brandon-fl.webp.</li>
+    <li><b>Resize and compress;</b> serve modern formats.</li>
+    <li><b>Keep key info as real text.</b></li>
+  </ul>
+</section>
+
+<!-- S8 -->
+<section class="metric" id="s8" aria-labelledby="s8-h">
+  <div class="mhead"><div><span class="tape">Check 8</span><h2 id="s8-h">Business details on the site</h2><p class="q">Are the name, address or service area, and phone clear and consistent on every page?</p></div></div>
+  <div class="cols one">
+    <div class="panel"><h3 style="margin-top:0">Spot it</h3>
+      <ul class="checks" data-metric="s8">
+        <li><label><input type="checkbox" data-id="s8a"><span>Name, address or service area, and phone aren’t in the footer of every page</span></label></li>
+        <li><label><input type="checkbox" data-id="s8b"><span>The phone number is an image or isn’t tappable</span></label></li>
+        <li><label><input type="checkbox" data-id="s8c"><span>The contact page has no map or description of the service area</span></label></li>
+        <li><label><input type="checkbox" data-id="s8d"><span>Details on the site differ from the Google profile</span></label></li>
+      </ul><p class="count" data-count="s8">0 problems found</p></div>
+  </div>
+  <h3>Why it matters</h3>
+  <p>Google says local prominence is also based on information it has about a business from across the web, so consistent details support an accurate picture. For people, NN/g’s trust research recommends making contact details easy to find.</p>
+  <div class="ev">
+    <div class="case right"><h4>Evidence</h4><p>Consistent, visible business details help both Google’s understanding and customers trying to reach the company.</p><span class="etype">Evidence type: official Google Business Profile Help; NN/g usability research.</span></div>
+    <div class="case wrong"><h4>Evidence gap</h4><p>There’s no evidence that embedding a map improves rankings. Recommend it for visitors who want to see the service area, not for SEO.</p><span class="etype">Honest note.</span></div>
+  </div>
+  <h3>How to fix it</h3>
+  <ul class="rules">
+    <li><b>Put the details in the footer</b> of every page, as real text, with a tappable phone link.</li>
+    <li><b>Match the Google profile exactly.</b></li>
+    <li><b>Service-area businesses</b> without a public office: list areas served rather than a street address, matching how the Google profile is set up.</li>
+  </ul>
+</section>
+
+<!-- S9 -->
+<section class="metric" id="s9" aria-labelledby="s9-h">
+  <div class="mhead"><div><span class="tape">Check 9</span><h2 id="s9-h">Structured data</h2><p class="q">Does the site describe the business to search engines accurately, without chasing snippets it can’t get?</p></div></div>
+  <div class="cols one">
+    <div class="panel"><h3 style="margin-top:0">Spot it</h3>
+      <ul class="checks" data-metric="s9">
+        <li><label><input type="checkbox" data-id="s9a"><span>No HousePainter or LocalBusiness structured data</span></label></li>
+        <li><label><input type="checkbox" data-id="s9b"><span>The structured data has errors or doesn’t match the visible page</span></label></li>
+        <li><label><input type="checkbox" data-id="s9c"><span>Review or rating markup about the business itself, added to get stars in search</span></label></li>
+        <li><label><input type="checkbox" data-id="s9d"><span>No links (sameAs) to the business’s real profiles</span></label></li>
+      </ul><p class="count" data-count="s9">0 problems found</p></div>
+  </div>
+  <h3>Why it matters</h3>
+  <p>Structured data labels the business details (name, phone, hours, area served) so search engines read them reliably. Schema.org has a specific HousePainter type. Google documents local business markup, but says adding it doesn’t guarantee any search feature.</p>
+  <div class="ev">
+    <div class="case right"><h4>Evidence</h4><p>Google’s local business structured data documentation describes how to provide address, hours, and phone, and recommends validating the markup.</p><span class="etype">Evidence type: official Google Search Central documentation.</span></div>
+    <div class="case wrong"><h4>Got it wrong</h4><p>Since September 2019, Google doesn’t show review stars for LocalBusiness or Organization markup when the business controls the reviews, including through an embedded widget. It isn’t penalized; it just won’t display.</p><span class="etype">Evidence type: official Google Search Central blog (“Making review rich results more helpful,” 2019).</span></div>
+  </div>
+  <h3>How to fix it</h3>
+  <ul class="rules">
+    <li><b>Add JSON-LD</b> with HousePainter (or LocalBusiness): name, URL, phone, address or areaServed, hours, logo, sameAs links.</li>
+    <li><b>Match the visible page exactly,</b> and validate with validator.schema.org or Google’s Rich Results Test.</li>
+    <li><b>Don’t promise review stars</b> from their own reviews; that isn’t possible in Google.</li>
+  </ul>
+</section>
+
+<!-- S10 -->
+<section class="metric" id="s10" aria-labelledby="s10-h">
+  <div class="mhead"><div><span class="tape">Check 10</span><h2 id="s10-h">Google profile: name and categories</h2><p class="q">Is the profile named and categorized the way Google’s rules require?</p></div></div>
+  <div class="cols one">
+    <div class="panel"><h3 style="margin-top:0">Spot it</h3>
+      <ul class="checks" data-metric="s10">
+        <li><label><input type="checkbox" data-id="s10a"><span>The primary category isn’t “Painter” or the closest match to their main business</span></label></li>
+        <li><label><input type="checkbox" data-id="s10b"><span>Extra categories that aren’t real parts of the business, added as keywords</span></label></li>
+        <li><label><input type="checkbox" data-id="s10c"><span>Keywords or a city added to the business name (not their real-world name)</span></label></li>
+        <li><label><input type="checkbox" data-id="s10d"><span>More than one profile for the same business</span></label></li>
+      </ul><p class="count" data-count="s10">0 problems found</p></div>
+  </div>
+  <h3>Why it matters</h3>
+  <p>Google says local results are based mainly on relevance, distance, and prominence, and categories are a core relevance signal. Google’s guidelines say to choose the fewest categories it takes to describe the core business, to keep one profile per business, and to use the business’s real-world name.</p>
+  <div class="ev">
+    <div class="case right"><h4>Evidence</h4><p>Google advises choosing the fewest categories that describe the core business, and not using categories as keywords.</p><span class="etype">Evidence type: official “Guidelines for representing your business on Google.”</span></div>
+    <div class="case wrong"><h4>Got it wrong</h4><p>Google says adding unnecessary information to the business name isn’t permitted and can lead to the profile being suspended.</p><span class="etype">Evidence type: same guidelines.</span></div>
+  </div>
+  <div class="note">The primary category shows on the public profile. Secondary categories usually need access to the owner’s dashboard or a third-party tool to see.</div>
+  <h3>How to fix it</h3>
+  <ul class="rules">
+    <li><b>Primary category:</b> the most specific match for the main business, usually “Painter.”</li>
+    <li><b>Secondary categories:</b> only real service lines (for example, a drywall contractor category if they do substantial drywall work).</li>
+    <li><b>Business name:</b> exactly as on their signage and branding.</li>
+    <li><b>Merge or remove duplicate profiles</b> through Google’s support process.</li>
+  </ul>
+</section>
+
+<!-- S11 -->
+<section class="metric" id="s11" aria-labelledby="s11-h">
+  <div class="mhead"><div><span class="tape">Check 11</span><h2 id="s11-h">Google profile: details and service area</h2><p class="q">Is everything a homeowner (and Google) needs filled in and accurate?</p></div></div>
+  <div class="cols one">
+    <div class="panel"><h3 style="margin-top:0">Spot it</h3>
+      <ul class="checks" data-metric="s11">
+        <li><label><input type="checkbox" data-id="s11a"><span>Hours missing or inaccurate, with no holiday hours</span></label></li>
+        <li><label><input type="checkbox" data-id="s11b"><span>Services list missing or incomplete</span></label></li>
+        <li><label><input type="checkbox" data-id="s11c"><span>Service area missing, unrealistically large, or a home address shown when they don’t serve customers there</span></label></li>
+        <li><label><input type="checkbox" data-id="s11d"><span>Business description missing or generic</span></label></li>
+        <li><label><input type="checkbox" data-id="s11e"><span>The website link is missing or points to the wrong page</span></label></li>
+      </ul><p class="count" data-count="s11">0 problems found</p></div>
+  </div>
+  <h3>Why it matters</h3>
+  <p>Google says complete, accurate business information helps it match a profile to the right searches. Its guidelines say a service-area business that doesn’t serve customers at its address should hide that address, and that the overall service area shouldn’t extend farther than about two hours of driving time from where the business is based.</p>
+  <div class="ev">
+    <div class="case right"><h4>Evidence</h4><p>Google’s local ranking guidance recommends entering complete data and keeping hours accurate.</p><span class="etype">Evidence type: official Google Business Profile Help.</span></div>
+    <div class="case wrong"><h4>Got it wrong</h4><p>Service areas far beyond realistic driving distance go against Google’s service-area guidance, and adding areas doesn’t guarantee ranking in them.</p><span class="etype">Evidence type: official “Guidelines for representing your business on Google.”</span></div>
+  </div>
+  <h3>How to fix it</h3>
+  <ul class="rules">
+    <li><b>Hours:</b> accurate regular hours plus holiday hours.</li>
+    <li><b>Services:</b> list every real service, matching the website’s service pages.</li>
+    <li><b>Service area:</b> the real cities or ZIP codes they serve, within about two hours’ drive; hide a home address.</li>
+    <li><b>Description:</b> plain, specific, no links or promotions.</li>
+    <li><b>Website link:</b> to the homepage, or to a location page for multi-location businesses.</li>
+  </ul>
+</section>
+
+<!-- S12 -->
+<section class="metric" id="s12" aria-labelledby="s12-h">
+  <div class="mhead"><div><span class="tape">Check 12</span><h2 id="s12-h">Google profile: photos and updates</h2><p class="q">Does the profile show recent, real work?</p></div></div>
+  <div class="cols one">
+    <div class="panel"><h3 style="margin-top:0">Spot it</h3>
+      <ul class="checks" data-metric="s12">
+        <li><label><input type="checkbox" data-id="s12a"><span>Few or no real project photos; mostly logos, graphics, or stock</span></label></li>
+        <li><label><input type="checkbox" data-id="s12b"><span>The newest owner photos are more than a few months old</span></label></li>
+        <li><label><input type="checkbox" data-id="s12c"><span>No recent updates (posts) on the profile</span></label></li>
+      </ul><p class="count" data-count="s12">0 problems found</p></div>
+  </div>
+  <h3>Why it matters</h3>
+  <p>For local searches, the profile is often the first thing a homeowner sees. Google recommends adding photos to show customers the business, and fresh project photos are proof that the company is active and does good work.</p>
+  <div class="ev">
+    <div class="case right"><h4>Evidence</h4><p>Google’s guidance encourages businesses to add photos to their profile.</p><span class="etype">Evidence type: official Google Business Profile Help.</span></div>
+    <div class="case wrong"><h4>Evidence gap</h4><p>Google hasn’t said that photos or updates directly improve ranking, and industry studies disagree. Recommend them for customers and credibility, not as a ranking tactic.</p><span class="etype">Honest note.</span></div>
+  </div>
+  <h3>How to fix it</h3>
+  <ul class="rules">
+    <li><b>Add real project photos regularly:</b> before and after, crews at work, finished rooms and exteriors.</li>
+    <li><b>Set up a simple routine</b> with field crews to send photos from each job.</li>
+    <li><b>Use updates</b> to share recent projects and real offers.</li>
+  </ul>
+</section>
+
+<!-- S13 -->
+<section class="metric" id="s13" aria-labelledby="s13-h">
+  <div class="mhead"><div><span class="tape">Check 13</span><h2 id="s13-h">Reviews</h2><p class="q">How do their reviews compare, and are they collected within the rules?</p></div></div>
+  <div class="cols one">
+    <div class="panel"><h3 style="margin-top:0">Spot it</h3>
+      <ul class="checks" data-metric="s13">
+        <li><label><input type="checkbox" data-id="s13a"><span>Far fewer reviews than the top competitors in the map results</span></label></li>
+        <li><label><input type="checkbox" data-id="s13b"><span>No new reviews in the last few months</span></label></li>
+        <li><label><input type="checkbox" data-id="s13c"><span>The owner doesn’t reply, or uses the same canned reply every time</span></label></li>
+        <li><label><input type="checkbox" data-id="s13d"><span>Signs of incentives or gating (“leave 5 stars for 10% off,” only happy customers asked)</span></label></li>
+      </ul><p class="count" data-count="s13">0 problems found</p></div>
+  </div>
+  <h3>Why it matters</h3>
+  <p>Google says more reviews and positive ratings can improve a business’s local ranking, and recommends replying to reviews. Its review policy allows businesses to ask for genuine reviews but bans incentives, discouraging negative reviews, and selectively asking only happy customers. An April 2026 update also bars asking staff to hit review quotas or to get reviews that mention specific content, such as staff names.</p>
+  <div class="ev">
+    <div class="case right"><h4>Evidence</h4><p>Google lists reviews and owner replies among the things that help local ranking.</p><span class="etype">Evidence type: official Google Business Profile Help.</span></div>
+    <div class="case wrong"><h4>Got it wrong</h4><p>Reviews tied to incentives or selective solicitation violate Google’s Maps content policy and can be removed. Fake or bought reviews are also banned under the FTC’s 2024 rule.</p><span class="etype">Evidence type: Google Maps user-contributed content policy; FTC regulation.</span></div>
+  </div>
+  <h3>How to fix it</h3>
+  <ul class="rules">
+    <li><b>Ask every customer</b> after the job, with a text containing a direct review link. No incentives, and ask everyone, not just happy customers.</li>
+    <li><b>Reply to every review,</b> briefly and personally, including negative ones.</li>
+    <li><b>Don’t set staff quotas</b> or ask for reviews mentioning specific people or words.</li>
+  </ul>
+</section>
+
+<!-- S14 -->
+<section class="metric" id="s14" aria-labelledby="s14-h">
+  <div class="mhead"><div><span class="tape">Check 14</span><h2 id="s14-h">Listings across the web</h2><p class="q">Is the business listed consistently on the other places people and search engines look?</p></div></div>
+  <div class="cols one">
+    <div class="panel"><h3 style="margin-top:0">Spot it</h3>
+      <ul class="checks" data-metric="s14">
+        <li><label><input type="checkbox" data-id="s14a"><span>A different name, phone, or address on Yelp, BBB, Angi, Facebook, or Nextdoor</span></label></li>
+        <li><label><input type="checkbox" data-id="s14b"><span>Not listed on Apple Maps (Apple Business Connect) or Bing Places</span></label></li>
+        <li><label><input type="checkbox" data-id="s14c"><span>Duplicate or outdated listings from an old name, number, or address</span></label></li>
+      </ul><p class="count" data-count="s14">0 problems found</p></div>
+  </div>
+  <h3>Why it matters</h3>
+  <p>Google says prominence is also based on information it has about a business from across the web, such as links, articles, and directories. Apple Maps and Bing are separate places homeowners search, including through iPhones and voice assistants. Conflicting details also mean missed calls.</p>
+  <div class="ev">
+    <div class="case right"><h4>Evidence</h4><p>Google’s local ranking guidance references information from directories and across the web as part of prominence.</p><span class="etype">Evidence type: official Google Business Profile Help.</span></div>
+    <div class="case wrong"><h4>Evidence gap</h4><p>Google doesn’t say how much listings consistency affects ranking. Lead with the missed-calls angle and coverage on other maps.</p><span class="etype">Honest note.</span></div>
+  </div>
+  <h3>How to fix it</h3>
+  <ul class="rules">
+    <li><b>Use one exact format</b> for name, address or service area, and phone everywhere.</li>
+    <li><b>Claim Apple Business Connect and Bing Places</b> listings.</li>
+    <li><b>Fix or close outdated listings.</b></li>
+  </ul>
+</section>
+
+<!-- S15 -->
+<section class="metric" id="s15" aria-labelledby="s15-h">
+  <div class="mhead"><div><span class="tape">Check 15</span><h2 id="s15-h">City and area pages</h2><p class="q">If they target several cities, do those pages offer real local value?</p></div></div>
+  <div class="cols one">
+    <div class="panel"><h3 style="margin-top:0">Spot it</h3>
+      <ul class="checks" data-metric="s15">
+        <li><label><input type="checkbox" data-id="s15a"><span>No page about the areas they serve, though they cover several distinct cities</span></label></li>
+        <li><label><input type="checkbox" data-id="s15b"><span>City pages are copies with only the city name swapped</span></label></li>
+        <li><label><input type="checkbox" data-id="s15c"><span>City pages have no local proof (projects, reviews, or photos from that area)</span></label></li>
+      </ul><p class="count" data-count="s15">0 problems found</p></div>
+  </div>
+  <h3>Why it matters</h3>
+  <p>Homeowners want to know a company works in their area. But Google’s spam policies treat pages targeting specific cities that funnel visitors to one place as doorway pages, and its helpful-content guidance asks for pages with real value.</p>
+  <div class="ev">
+    <div class="case right"><h4>Evidence</h4><p>Google recommends people-first pages that show first-hand experience, which local projects and reviews provide.</p><span class="etype">Evidence type: official Google helpful-content guidance.</span></div>
+    <div class="case wrong"><h4>Got it wrong</h4><p>Google names multiple pages targeting specific cities that funnel users to one page as doorway abuse.</p><span class="etype">Evidence type: official Google spam policies.</span></div>
+  </div>
+  <div class="note">Many small painters don’t need separate city pages. A strong service area page with a map and local projects is often enough. Add city pages only where they can show real local work.</div>
+  <h3>How to fix it</h3>
+  <ul class="rules">
+    <li><b>Start with one service area page:</b> cities covered, a map, local projects.</li>
+    <li><b>Add city pages only with real content:</b> projects, reviews, and specifics from that city.</li>
+    <li><b>Merge or improve</b> copy-paste city pages.</li>
+  </ul>
+</section>
+
+<!-- S16 -->
+<section class="metric" id="s16" aria-labelledby="s16-h">
+  <div class="mhead"><div><span class="tape">Check 16</span><h2 id="s16-h">Local links and mentions</h2><p class="q">Do local organizations and sites mention and link to the business?</p></div></div>
+  <div class="cols one">
+    <div class="panel"><h3 style="margin-top:0">Spot it</h3>
+      <ul class="checks" data-metric="s16">
+        <li><label><input type="checkbox" data-id="s16a"><span>No links from local organizations (chamber, associations, suppliers, sponsorships)</span></label></li>
+        <li><label><input type="checkbox" data-id="s16b"><span>Memberships they hold (BBB, Painting Contractors Association) don’t link to their site</span></label></li>
+        <li><label><input type="checkbox" data-id="s16c"><span>No local press or community mentions</span></label></li>
+        <li><label><input type="checkbox" data-id="s16d"><span>Signs of paid or spammy links (link farms, unrelated directories)</span></label></li>
+      </ul><p class="count" data-count="s16">0 problems found</p></div>
+  </div>
+  <h3>Why it matters</h3>
+  <p>Google says local prominence is based partly on information from across the web, including links and articles. Real local links (a chamber listing, a supplier’s contractor page, a youth team sponsorship) also send real visitors.</p>
+  <div class="ev">
+    <div class="case right"><h4>Evidence</h4><p>Google lists links and articles among the sources of prominence for local results.</p><span class="etype">Evidence type: official Google Business Profile Help.</span></div>
+    <div class="case wrong"><h4>Got it wrong</h4><p>Google’s spam policies treat buying or exchanging links to manipulate rankings as link spam.</p><span class="etype">Evidence type: official Google spam policies.</span></div>
+  </div>
+  <h3>How to fix it</h3>
+  <ul class="rules">
+    <li><b>Claim member listings</b> with associations and the chamber, with a link.</li>
+    <li><b>Ask suppliers and partners</b> for a listing on their contractor pages.</li>
+    <li><b>Sponsor or volunteer locally</b> where it’s genuine, and share it.</li>
+    <li><b>Never buy links.</b></li>
+  </ul>
+</section>
+
+<!-- S17 -->
+<section class="metric" id="s17" aria-labelledby="s17-h">
+  <div class="mhead"><div><span class="tape">Check 17</span><h2 id="s17-h">Map pack comparison</h2><p class="q">Who shows up in the map results for their main service, and what do they have that this business doesn’t?</p></div></div>
+  <div class="cols">
+    <div class="panel"><h3 style="margin-top:0">Spot it</h3>
+      <ul class="checks" data-metric="s17">
+        <li><label><input type="checkbox" data-id="s17a"><span>They don’t appear in the map results for “[main service] [city]”</span></label></li>
+        <li><label><input type="checkbox" data-id="s17b"><span>The top 3 competitors have far more reviews</span></label></li>
+        <li><label><input type="checkbox" data-id="s17c"><span>Competitors have more specific categories or fuller profiles</span></label></li>
+        <li><label><input type="checkbox" data-id="s17d"><span>Competitors have dedicated service pages this business lacks</span></label></li>
+      </ul><p class="count" data-count="s17">0 problems found</p></div>
+    <div class="wf" aria-label="Wireframe: map pack with three competitors and the business missing">
+      <figure class="now"><figcaption>What you’ll often see</figcaption><svg viewBox="0 0 160 150" role="img" aria-label="Map with three pins and three listings, none of them the prospect"><rect x="8" y="8" width="144" height="46" class="s-line" opacity=".6"/><g class="s-bad"><circle cx="40" cy="28" r="4"/><circle cx="90" cy="36" r="4"/><circle cx="120" cy="22" r="4"/></g><g class="s-text"><text x="8" y="72">A1 Painters ★ 4.9 (412)</text><text x="8" y="90">ProCoat ★ 4.8 (305)</text><text x="8" y="108">Brush &amp; Co ★ 4.7 (198)</text><text x="8" y="130" style="fill:var(--bad)">Prospect: not shown (38)</text></g></svg></figure>
+      <figure class="better"><figcaption>Gap list</figcaption><svg viewBox="0 0 160 150" role="img" aria-label="List of gaps between prospect and competitors"><g class="s-text"><text x="8" y="24" style="fill:var(--ink)">Gaps to close</text><text x="8" y="44">• Reviews: 38 vs ~300</text><text x="8" y="62">• Category: Contractor vs Painter</text><text x="8" y="80">• No cabinet painting page</text><text x="8" y="98">• Last photo: 2 years ago</text></g></svg></figure>
+    </div>
+  </div>
+  <h3>Why it matters</h3>
+  <p>Google says local results depend on relevance, distance, and prominence. Comparing against the businesses that already show up turns a vague goal (“rank higher”) into a specific gap list. It’s also very persuasive on a sales call.</p>
+  <div class="ev">
+    <div class="case right"><h4>Evidence</h4><p>Google’s local ranking factors (relevance, distance, prominence) are the basis for comparing profiles, categories, and reviews.</p><span class="etype">Evidence type: official Google Business Profile Help.</span></div>
+    <div class="case wrong"><h4>Evidence gap</h4><p>Results change with the searcher’s location, and distance can’t be fixed. Never promise a map-pack position; present the gaps you can close.</p><span class="etype">Honest note.</span></div>
+  </div>
+  <h3>How to fix it</h3>
+  <ul class="rules">
+    <li><b>Search “[main service] [city]”</b> in a private window, and note the top 3 map results.</li>
+    <li><b>Compare:</b> review count and recency, primary category, photos, services listed, and matching service pages.</li>
+    <li><b>Turn each gap into a task</b> in the findings report.</li>
+  </ul>
+</section>
+
+<!-- S18 -->
+<section class="metric" id="s18" aria-labelledby="s18-h">
+  <div class="mhead"><div><span class="tape">Check 18</span><h2 id="s18-h">Indexing basics</h2><p class="q">Can Google find and show the pages that matter?</p></div></div>
+  <div class="cols one"><div class="panel"><h3 style="margin-top:0">Spot it</h3>
+    <ul class="checks" data-metric="s18">
+      <li><label><input type="checkbox" data-id="s18a"><span>Key service pages don’t appear in a site: search</span></label></li>
+      <li><label><input type="checkbox" data-id="s18b"><span>A noindex tag on pages that should be in Google</span></label></li>
+      <li><label><input type="checkbox" data-id="s18c"><span>robots.txt blocks important pages or files</span></label></li>
+      <li><label><input type="checkbox" data-id="s18d"><span>No XML sitemap</span></label></li>
+    </ul><p class="count" data-count="s18">0 problems found</p></div></div>
+  <h3>Why it matters</h3>
+  <p>A page Google can’t crawl or is told not to index can’t bring anyone in. A noindex tag removes a page from search, robots.txt can block crawling, and a sitemap helps Google discover pages. A common WordPress mistake is leaving “Discourage search engines from indexing this site” on after launch.</p>
+  <div class="ev">
+    <div class="case right"><h4>Evidence</h4><p>Google recommends sitemaps and Search Console’s indexing reports to confirm which pages are indexed.</p><span class="etype">Evidence type: official Google Search Central documentation.</span></div>
+    <div class="case wrong"><h4>Got it wrong</h4><p>Google documents that a noindex rule keeps a page out of search results even if other sites link to it.</p><span class="etype">Evidence type: same documentation.</span></div>
+  </div>
+  <div class="note">A site: search is a rough check. Confirm in Search Console (Check 27) before telling a client a page isn’t indexed.</div>
+  <h3>How to fix it</h3>
+  <ul class="rules">
+    <li><b>Remove accidental noindex,</b> including the WordPress visibility setting.</li>
+    <li><b>Unblock important pages and files</b> in robots.txt.</li>
+    <li><b>Publish a sitemap</b> and submit it in Search Console.</li>
+  </ul>
+</section>
+
+<!-- S19 -->
+<section class="metric" id="s19" aria-labelledby="s19-h">
+  <div class="mhead"><div><span class="tape">Check 19</span><h2 id="s19-h">HTTPS, redirects, and duplicates</h2><p class="q">Does every version of the site lead to one secure address?</p></div></div>
+  <div class="cols one"><div class="panel"><h3 style="margin-top:0">Spot it</h3>
+    <ul class="checks" data-metric="s19">
+      <li><label><input type="checkbox" data-id="s19a"><span>Not on HTTPS, or the browser shows a security warning</span></label></li>
+      <li><label><input type="checkbox" data-id="s19b"><span>http, https, www, and non-www versions don’t all redirect to one</span></label></li>
+      <li><label><input type="checkbox" data-id="s19c"><span>Old page URLs show “not found” instead of redirecting</span></label></li>
+      <li><label><input type="checkbox" data-id="s19d"><span>Duplicate pages with no canonical tag pointing to the main one</span></label></li>
+    </ul><p class="count" data-count="s19">0 problems found</p></div></div>
+  <h3>Why it matters</h3>
+  <p>Google announced HTTPS as a ranking signal in 2014, and browsers label non-HTTPS pages “Not secure.” Several working versions of the same site split signals and can confuse which page Google shows; permanent redirects and canonical tags tell Google which one is the main version.</p>
+  <div class="ev">
+    <div class="case right"><h4>Evidence</h4><p>Google recommends permanent (301) redirects when URLs change, and canonical tags to indicate the preferred version of duplicate pages.</p><span class="etype">Evidence type: official Google Search Central documentation.</span></div>
+    <div class="case wrong"><h4>Got it wrong</h4><p>Redesigns that change URLs without redirects are a common cause of lost search traffic, because old links and rankings point to pages that no longer exist.</p><span class="etype">Evidence type: Google’s site-move guidance.</span></div>
+  </div>
+  <h3>How to fix it</h3>
+  <ul class="rules">
+    <li><b>Force HTTPS</b> and pick one host (www or not); redirect everything else with 301s.</li>
+    <li><b>Redirect old URLs</b> to their closest current page.</li>
+    <li><b>Add canonical tags</b> where duplicates must exist.</li>
+  </ul>
+</section>
+
+<!-- S20 -->
+<section class="metric" id="s20" aria-labelledby="s20-h">
+  <div class="mhead"><div><span class="tape">Check 20</span><h2 id="s20-h">Core Web Vitals and mobile</h2><p class="q">Is the site fast and stable for real visitors on phones?</p></div></div>
+  <div class="cols one"><div class="panel"><h3 style="margin-top:0">Spot it</h3>
+    <ul class="checks" data-metric="s20">
+      <li><label><input type="checkbox" data-id="s20a"><span>Real-user data fails a Core Web Vital (LCP over 2.5 s, INP over 200 ms, or CLS over 0.1)</span></label></li>
+      <li><label><input type="checkbox" data-id="s20b"><span>No real-user data, and the lab test shows a slow main image</span></label></li>
+      <li><label><input type="checkbox" data-id="s20c"><span>Layout problems on phones (overlapping, sideways scrolling, tiny tap targets)</span></label></li>
+      <li><label><input type="checkbox" data-id="s20d"><span>Heavy scripts or plugins slow the page (sliders, chat widgets, page builders’ extras)</span></label></li>
+    </ul><p class="count" data-count="s20">0 problems found</p></div></div>
+  <h3>Why it matters</h3>
+  <p>Core Web Vitals are Google’s measures of loading, responsiveness, and visual stability, with “good” thresholds of about 2.5 seconds, 200 milliseconds, and 0.1. Google treats page experience as one signal among many, and relevance still matters more. The bigger effect is on visitors: in Vodafone’s A/B test, a 31% faster main image brought 8% more sales.</p>
+  <div class="ev">
+    <div class="case right"><h4>Got it right</h4><p>Vodafone’s optimized landing page (5.7 s vs 8.3 s to show the main content) produced 8% more sales and a 15% better lead-to-visit rate.</p><span class="etype">Evidence type: company A/B test on Google’s web.dev (2021).</span></div>
+    <div class="case wrong"><h4>Evidence gap</h4><p>Speed fixes rarely move rankings by themselves. Present them as keeping visitors, not as a ranking promise.</p><span class="etype">Honest note.</span></div>
+  </div>
+  <h3>How to fix it</h3>
+  <ul class="rules">
+    <li><b>Compress and resize images;</b> use modern formats and set width and height.</li>
+    <li><b>Replace sliders and autoplay video</b> at the top with one optimized image.</li>
+    <li><b>Delay or remove non-essential scripts</b> and unused plugins.</li>
+    <li><b>Use good hosting with caching.</b></li>
+  </ul>
+</section>
+
+<!-- S21 -->
+<section class="metric" id="s21" aria-labelledby="s21-h">
+  <div class="mhead"><div><span class="tape">Check 21</span><h2 id="s21-h">Broken links and errors</h2><p class="q">Do the site’s links and pages all work?</p></div></div>
+  <div class="cols one"><div class="panel"><h3 style="margin-top:0">Spot it</h3>
+    <ul class="checks" data-metric="s21">
+      <li><label><input type="checkbox" data-id="s21a"><span>Internal links lead to “page not found”</span></label></li>
+      <li><label><input type="checkbox" data-id="s21b"><span>Empty or placeholder pages that load but have no real content</span></label></li>
+      <li><label><input type="checkbox" data-id="s21c"><span>Broken images</span></label></li>
+      <li><label><input type="checkbox" data-id="s21d"><span>The 404 page is a dead end</span></label></li>
+    </ul><p class="count" data-count="s21">0 problems found</p></div></div>
+  <h3>Why it matters</h3>
+  <p>Broken links waste visits and, per NN/g’s trust research, mistakes like broken links quickly degrade credibility. Google also flags empty pages that return a normal status as “soft 404s” in Search Console.</p>
+  <div class="ev">
+    <div class="case right"><h4>Evidence</h4><p>NN/g counts avoiding errors like broken links among the basics of trustworthy design.</p><span class="etype">Evidence type: usability study (NN/g, 2016).</span></div>
+    <div class="case wrong"><h4>Got it wrong</h4><p>Google’s Search Console reports soft 404s: pages that look empty or missing but don’t return a proper error.</p><span class="etype">Evidence type: official Google Search Console documentation.</span></div>
+  </div>
+  <h3>How to fix it</h3>
+  <ul class="rules">
+    <li><b>Run a broken-link checker</b> and fix or redirect each broken link.</li>
+    <li><b>Remove or finish placeholder pages.</b></li>
+    <li><b>Make the 404 page helpful,</b> with links to services and the estimate form.</li>
+  </ul>
+</section>
+
+<!-- S22 -->
+<section class="metric" id="s22" aria-labelledby="s22-h">
+  <div class="mhead"><div><span class="tape">Check 22</span><h2 id="s22-h">Site structure and click depth</h2><p class="q">Are the money pages close to the homepage and easy to reach?</p></div></div>
+  <div class="cols one"><div class="panel"><h3 style="margin-top:0">Spot it</h3>
+    <ul class="checks" data-metric="s22">
+      <li><label><input type="checkbox" data-id="s22a"><span>Main service pages take more than about 3 clicks to reach from the homepage</span></label></li>
+      <li><label><input type="checkbox" data-id="s22b"><span>Important pages exist but nothing links to them (orphan pages)</span></label></li>
+      <li><label><input type="checkbox" data-id="s22c"><span>Projects and guides are buried deep in blog pagination</span></label></li>
+    </ul><p class="count" data-count="s22">0 problems found</p></div></div>
+  <h3>Why it matters</h3>
+  <p>Google finds pages through links, and Google’s John Mueller has said that how easily a page can be reached from the homepage signals how important it is. Visitors benefit the same way: the fewer clicks to the right service page, the fewer people give up.</p>
+  <div class="ev">
+    <div class="case right"><h4>Evidence</h4><p>Google’s link guidance explains that it discovers and understands pages through links from other pages.</p><span class="etype">Evidence type: official Google documentation; public statements by Google (John Mueller).</span></div>
+    <div class="case wrong"><h4>Evidence gap</h4><p>“3 clicks” is a practical rule of thumb, not a Google rule. Use it to prioritize, not as a hard limit.</p><span class="etype">Honest note.</span></div>
+  </div>
+  <h3>How to fix it</h3>
+  <ul class="rules">
+    <li><b>Link every main service</b> from the menu and homepage.</li>
+    <li><b>Link projects and guides</b> from the matching service pages.</li>
+    <li><b>Give orphan pages links,</b> or remove them if they aren’t useful.</li>
+  </ul>
+</section>
+
+<!-- S23 -->
+<section class="metric" id="s23" aria-labelledby="s23-h">
+  <div class="mhead"><div><span class="tape">Check 23</span><h2 id="s23-h">Service page depth</h2><p class="q">Does each main service have a page that fully answers a homeowner’s questions?</p></div></div>
+  <div class="cols one"><div class="panel"><h3 style="margin-top:0">Spot it</h3>
+    <ul class="checks" data-metric="s23">
+      <li><label><input type="checkbox" data-id="s23a"><span>A main service has no page of its own</span></label></li>
+      <li><label><input type="checkbox" data-id="s23b"><span>Service pages lack process, prep, timeline, photos of that work, or FAQs</span></label></li>
+      <li><label><input type="checkbox" data-id="s23c"><span>The same text is reused across several service pages</span></label></li>
+    </ul><p class="count" data-count="s23">0 problems found</p></div></div>
+  <h3>Why it matters</h3>
+  <p>Each service is its own search and its own decision. Google’s helpful-content guidance asks whether a page leaves people feeling they learned enough to reach their goal, and whether it shows first-hand expertise. NN/g found people judge whether a company serves “people like me” by whether the site shows that kind of work.</p>
+  <div class="ev">
+    <div class="case right"><h4>Evidence</h4><p>Google recommends people-first content that demonstrates first-hand experience.</p><span class="etype">Evidence type: official Google helpful-content guidance.</span></div>
+    <div class="case wrong"><h4>Got it wrong</h4><p>NN/g observed homeowners put off by companies whose sites seemed to focus on a different kind of customer.</p><span class="etype">Evidence type: usability-study observations (NN/g, 2016).</span></div>
+  </div>
+  <h3>How to fix it</h3>
+  <ul class="rules">
+    <li><b>One page per main service,</b> each with what’s included, process, prep, timeline, real photos, FAQs, related reviews, and an estimate form.</li>
+    <li><b>Write each page from scratch;</b> no shared boilerplate.</li>
+  </ul>
+</section>
+
+<!-- S24 -->
+<section class="metric" id="s24" aria-labelledby="s24-h">
+  <div class="mhead"><div><span class="tape">Check 24</span><h2 id="s24-h">Helpful guides</h2><p class="q">Is there content that helps homeowners before they’re ready to call?</p></div></div>
+  <div class="cols one"><div class="panel"><h3 style="margin-top:0">Spot it</h3>
+    <ul class="checks" data-metric="s24">
+      <li><label><input type="checkbox" data-id="s24a"><span>No guides or resources beyond the service pages</span></label></li>
+      <li><label><input type="checkbox" data-id="s24b"><span>Posts are thin, generic, or look mass-produced</span></label></li>
+      <li><label><input type="checkbox" data-id="s24c"><span>No first-hand detail (real photos, specifics only a painter would know)</span></label></li>
+    </ul><p class="count" data-count="s24">0 problems found</p></div></div>
+  <h3>Why it matters</h3>
+  <p>Guides on cost, prep, and colors answer common searches and build trust early. Google asks for content with first-hand expertise, and its spam policies name scaled content abuse: many low-value pages made mainly to rank, including with automation.</p>
+  <div class="ev">
+    <div class="case right"><h4>Evidence</h4><p>Google recommends content written for people, demonstrating real expertise.</p><span class="etype">Evidence type: official Google helpful-content guidance.</span></div>
+    <div class="case wrong"><h4>Got it wrong</h4><p>Mass-produced pages with little value fall under Google’s scaled content abuse policy.</p><span class="etype">Evidence type: official Google spam policies.</span></div>
+  </div>
+  <div class="note">Recommend guides only after service pages are solid. A few genuinely useful guides beat many thin posts, and none of it guarantees traffic.</div>
+  <h3>How to fix it</h3>
+  <ul class="rules">
+    <li><b>Start with 3–4 guides</b> from the owner’s real knowledge: a cost guide, a prep guide, color advice for the local climate.</li>
+    <li><b>Link each guide</b> to the matching service page and the estimate form.</li>
+  </ul>
+</section>
+
+<!-- S25 -->
+<section class="metric" id="s25" aria-labelledby="s25-h">
+  <div class="mhead"><div><span class="tape">Check 25</span><h2 id="s25-h">FAQ content</h2><p class="q">Are real homeowner questions answered where they come up?</p></div></div>
+  <div class="cols one"><div class="panel"><h3 style="margin-top:0">Spot it</h3>
+    <ul class="checks" data-metric="s25">
+      <li><label><input type="checkbox" data-id="s25a"><span>No FAQs on service pages</span></label></li>
+      <li><label><input type="checkbox" data-id="s25b"><span>FAQs are generic filler, not real customer questions</span></label></li>
+      <li><label><input type="checkbox" data-id="s25c"><span>Answers are vague, with no specifics</span></label></li>
+    </ul><p class="count" data-count="s25">0 problems found</p></div></div>
+  <h3>Why it matters</h3>
+  <p>NN/g found people visit FAQ pages for practical details before choosing a service company. FAQ content also matches the questions people type into Google. FAQ schema, however, no longer produces special search results (see Myths to avoid).</p>
+  <div class="ev">
+    <div class="case right"><h4>Evidence</h4><p>NN/g observed participants turning to FAQs for practical information.</p><span class="etype">Evidence type: usability study (NN/g, 2016).</span></div>
+    <div class="case wrong"><h4>Got it wrong</h4><p>Adding FAQ schema for expandable search results no longer works: limited in 2023 and, per 2026 reporting, removed entirely.</p><span class="etype">Evidence type: Google announcement (2023); industry reporting (2026).</span></div>
+  </div>
+  <h3>How to fix it</h3>
+  <ul class="rules">
+    <li><b>Add 5–8 real questions</b> per service page, from calls and reviews, plus “People also ask” in Google.</li>
+    <li><b>Short, specific answers.</b></li>
+  </ul>
+</section>
+
+<!-- S26 -->
+<section class="metric" id="s26" aria-labelledby="s26-h">
+  <div class="mhead"><div><span class="tape">Check 26</span><h2 id="s26-h">Freshness and accuracy</h2><p class="q">Does the site look current and tell the truth today?</p></div></div>
+  <div class="cols one"><div class="panel"><h3 style="margin-top:0">Spot it</h3>
+    <ul class="checks" data-metric="s26">
+      <li><label><input type="checkbox" data-id="s26a"><span>The project gallery hasn’t been updated in a long time</span></label></li>
+      <li><label><input type="checkbox" data-id="s26b"><span>Outdated details (old prices, years, staff, services they no longer offer)</span></label></li>
+      <li><label><input type="checkbox" data-id="s26c"><span>“Latest” posts or news shown on the homepage are years old</span></label></li>
+    </ul><p class="count" data-count="s26">0 problems found</p></div></div>
+  <h3>Why it matters</h3>
+  <p>NN/g lists comprehensive, current content as one of the four factors behind trust. For service pages, accuracy matters more than frequent edits; stale “latest news” on a homepage makes a company look inactive.</p>
+  <div class="ev">
+    <div class="case right"><h4>Evidence</h4><p>NN/g’s trust research names current content as a credibility factor.</p><span class="etype">Evidence type: usability study (NN/g, 2016).</span></div>
+    <div class="case wrong"><h4>Evidence gap</h4><p>Updating pages just to change the date doesn’t help rankings. Update when something real changes.</p><span class="etype">Honest note.</span></div>
+  </div>
+  <h3>How to fix it</h3>
+  <ul class="rules">
+    <li><b>Add recent projects</b> monthly.</li>
+    <li><b>Review pages twice a year</b> for outdated details.</li>
+    <li><b>Show recent projects</b> instead of an old blog feed on the homepage.</li>
+  </ul>
+</section>
+
+<!-- S27 -->
+<section class="metric" id="s27" aria-labelledby="s27-h">
+  <div class="mhead"><div><span class="tape">Check 27</span><h2 id="s27-h">Google Search Console</h2><p class="q">Is Search Console set up, and does anyone use it?</p></div></div>
+  <div class="cols one"><div class="panel"><h3 style="margin-top:0">Spot it</h3>
+    <ul class="checks" data-metric="s27">
+      <li><label><input type="checkbox" data-id="s27a"><span>Search Console isn’t set up or verified</span></label></li>
+      <li><label><input type="checkbox" data-id="s27b"><span>No sitemap submitted</span></label></li>
+      <li><label><input type="checkbox" data-id="s27c"><span>Indexing or page experience errors on key pages</span></label></li>
+      <li><label><input type="checkbox" data-id="s27d"><span>Nobody reviews which searches and pages bring visitors</span></label></li>
+    </ul><p class="count" data-count="s27">0 problems found</p></div></div>
+  <h3>Why it matters</h3>
+  <p>Search Console is Google’s free tool that shows which searches a site appears for, how many people click, and which pages have indexing problems. It’s the only reliable source for those facts; outside tools only estimate.</p>
+  <div class="ev">
+    <div class="case right"><h4>Evidence</h4><p>Google provides the Performance, Page indexing, and Core Web Vitals reports in Search Console.</p><span class="etype">Evidence type: official Google Search Console documentation.</span></div>
+    <div class="case wrong"><h4>Evidence gap</h4><p>Without Search Console data, any claim about rankings or traffic is a guess. Set it up before promising improvements.</p><span class="etype">Honest note.</span></div>
+  </div>
+  <h3>How to fix it</h3>
+  <ul class="rules">
+    <li><b>Verify the domain</b> and submit the sitemap.</li>
+    <li><b>Record a baseline:</b> top queries, clicks, impressions, and pages.</li>
+    <li><b>Review monthly</b> and fix errors on key pages.</li>
+  </ul>
+</section>
+
+<!-- S28 -->
+<section class="metric" id="s28" aria-labelledby="s28-h">
+  <div class="mhead"><div><span class="tape">Check 28</span><h2 id="s28-h">Google profile performance</h2><p class="q">Does the owner know how many calls and clicks the profile brings?</p></div></div>
+  <div class="cols one"><div class="panel"><h3 style="margin-top:0">Spot it</h3>
+    <ul class="checks" data-metric="s28">
+      <li><label><input type="checkbox" data-id="s28a"><span>Nobody reviews profile performance (calls, website clicks, direction requests)</span></label></li>
+      <li><label><input type="checkbox" data-id="s28b"><span>The profile’s website link has no tracking tag, so analytics can’t separate profile visits</span></label></li>
+    </ul><p class="count" data-count="s28">0 problems found</p></div></div>
+  <h3>Why it matters</h3>
+  <p>For many painters, the Google profile brings more calls than the website. Google’s profile performance reports show calls, website clicks, and direction requests. Adding a simple tracking tag (UTM parameters) to the website link lets Google Analytics show profile visits separately.</p>
+  <div class="ev">
+    <div class="case right"><h4>Evidence</h4><p>Google provides performance metrics for Business Profiles, including calls and website clicks.</p><span class="etype">Evidence type: official Google Business Profile Help.</span></div>
+    <div class="case wrong"><h4>Evidence gap</h4><p>Profile metrics are approximate and don’t show which calls became jobs. Pair them with lead tracking (Check 29).</p><span class="etype">Honest note.</span></div>
+  </div>
+  <h3>How to fix it</h3>
+  <ul class="rules">
+    <li><b>Record monthly:</b> calls, website clicks, direction requests.</li>
+    <li><b>Add UTM parameters</b> to the profile’s website link (for example, utm_source=google&amp;utm_medium=organic&amp;utm_campaign=gbp).</li>
+  </ul>
+</section>
+
+<!-- S29 -->
+<section class="metric" id="s29" aria-labelledby="s29-h">
+  <div class="mhead"><div><span class="tape">Check 29</span><h2 id="s29-h">Lead tracking</h2><p class="q">Can the owner see which leads came from search, and which became jobs?</p></div></div>
+  <div class="cols one"><div class="panel"><h3 style="margin-top:0">Spot it</h3>
+    <ul class="checks" data-metric="s29">
+      <li><label><input type="checkbox" data-id="s29a"><span>No GA4 key events for form submissions and phone taps</span></label></li>
+      <li><label><input type="checkbox" data-id="s29b"><span>Phone calls aren’t tracked by source</span></label></li>
+      <li><label><input type="checkbox" data-id="s29c"><span>Leads aren’t recorded by source in a CRM or spreadsheet</span></label></li>
+      <li><label><input type="checkbox" data-id="s29d"><span>No monthly report on leads by source</span></label></li>
+    </ul><p class="count" data-count="s29">0 problems found</p></div></div>
+  <h3>Why it matters</h3>
+  <p>SEO only matters if it brings estimate requests. GA4 can record form submissions and phone taps as key events, and a simple lead log by source closes the loop from search to booked job. This is how you prove results to a client.</p>
+  <div class="ev">
+    <div class="case right"><h4>Evidence</h4><p>Google’s GA4 documentation describes marking actions like form submissions as key events.</p><span class="etype">Evidence type: official Google Analytics documentation.</span></div>
+    <div class="case wrong"><h4>Evidence gap</h4><p>Call tracking numbers can conflict with consistent business details. Keep the main number on the Google profile and listings, and follow Google’s phone guidelines.</p><span class="etype">Honest note.</span></div>
+  </div>
+  <h3>How to fix it</h3>
+  <ul class="rules">
+    <li><b>Set up GA4 key events</b> for forms, phone taps, and text taps.</li>
+    <li><b>Log every lead with its source</b> and whether it became a job.</li>
+    <li><b>Send a short monthly report:</b> leads by source, top search queries, profile calls.</li>
+  </ul>
+</section>
+
+<section class="metric" id="sources" aria-labelledby="src-h">
+  <h2 id="src-h" style="font-size:1.15rem">Sources</h2>
+  <ul class="sources">
+    <li>Google Search Central, “Influencing your title links in search results.” <a href="https://developers.google.com/search/docs/appearance/title-link" target="_blank" rel="noopener">developers.google.com</a></li>
+    <li>Google Search Central, “Control your snippets in search results” (meta descriptions). <a href="https://developers.google.com/search/docs/appearance/snippet" target="_blank" rel="noopener">developers.google.com</a></li>
+    <li>Google Search Central Blog, “Google does not use the keywords meta tag in web ranking” (2009).</li>
+    <li>Search Engine Journal coverage of John Mueller on headings (2019). <a href="https://www.searchenginejournal.com/google-h1-headings-seo/328459/" target="_blank" rel="noopener">searchenginejournal.com</a></li>
+    <li>Google Search Central, SEO Starter Guide and “Creating helpful, reliable, people-first content.” <a href="https://developers.google.com/search/docs/fundamentals/creating-helpful-content" target="_blank" rel="noopener">developers.google.com</a></li>
+    <li>Google Search Central, spam policies (keyword stuffing, doorway pages, link schemes, scaled content). <a href="https://developers.google.com/search/docs/essentials/spam-policies" target="_blank" rel="noopener">developers.google.com</a></li>
+    <li>Google Search Central, link best practices. <a href="https://developers.google.com/search/docs/crawling-indexing/links-crawlable" target="_blank" rel="noopener">developers.google.com</a></li>
+    <li>Google Search Central, URL structure best practices. <a href="https://developers.google.com/search/docs/crawling-indexing/url-structure" target="_blank" rel="noopener">developers.google.com</a></li>
+    <li>Google Search Central, image SEO best practices. <a href="https://developers.google.com/search/docs/appearance/google-images" target="_blank" rel="noopener">developers.google.com</a></li>
+    <li>Google Business Profile Help, “Tips to improve your local ranking on Google.” <a href="https://support.google.com/business/answer/7091" target="_blank" rel="noopener">support.google.com</a></li>
+    <li>Google Search Central, local business structured data. <a href="https://developers.google.com/search/docs/appearance/structured-data/local-business" target="_blank" rel="noopener">developers.google.com</a></li>
+    <li>Google Search Central Blog, “Making review rich results more helpful” (September 2019). <a href="https://developers.google.com/search/blog/2019/09/making-review-rich-results-more-helpful" target="_blank" rel="noopener">developers.google.com</a></li>
+    <li>Google Search Central Blog, “Changes to HowTo and FAQ rich results” (2023), and Search Engine Journal reporting (2026).</li>
+    <li>FTC, Trade Regulation Rule on the Use of Consumer Reviews and Testimonials (2024).</li>
+    <li>Google, “Guidelines for representing your business on Google.” <a href="https://support.google.com/business/answer/3038177" target="_blank" rel="noopener">support.google.com</a></li>
+    <li>Google Maps user-contributed content policy, “Prohibited and restricted content” (including the April 2026 update). <a href="https://support.google.com/contributionpolicy/answer/7400114" target="_blank" rel="noopener">support.google.com</a></li>
+    <li>Google Search Central, crawling and indexing documentation (robots.txt, sitemaps, noindex, canonicalization, redirects and site moves).</li>
+    <li>Google Search Central Blog, “HTTPS as a ranking signal” (2014).</li>
+    <li>web.dev, Core Web Vitals and “Vodafone: A 31% improvement in LCP increased sales by 8%” (2021). <a href="https://web.dev/case-studies/vodafone" target="_blank" rel="noopener">web.dev</a></li>
+    <li>Google Search Console Help (Performance, Page indexing, soft 404s).</li>
+    <li>Google Business Profile Help (performance metrics).</li>
+    <li>Google Analytics Help, GA4 key events.</li>
+    <li>Nielsen Norman Group, “Trustworthiness in Web Design: 4 Credibility Factors” (2016).</li>
+  </ul>
+</section>
+</div>
+
+<script>
+(function(){
+  var QS=new URLSearchParams(location.search),QSITE=QS.get("site")||"",QNAME=QS.get("name")||"",SITEKEY="";
+  try{if(QSITE)SITEKEY=new URL(QSITE).hostname.replace(/^www\./,"");}catch(e){}
+  var KEY="seo-audit-v1"+(SITEKEY?":"+SITEKEY:"");
+  var METRICS=["s1","s2","s3","s4","s5","s6","s7","s8","s9","s10","s11","s12","s13","s14","s15","s16","s17","s18","s19","s20","s21","s22","s23","s24","s25","s26","s27","s28","s29"];
+  var TITLES={s1:"Title tags",s2:"Meta descriptions",s3:"Headings (H1 and H2s)",s4:"Content matches what homeowners search",s5:"Internal links",s6:"URLs",s7:"Image SEO",s8:"Business details on the site",s9:"Structured data",s10:"Google profile: name and categories",s11:"Google profile: details and service area",s12:"Google profile: photos and updates",s13:"Reviews",s14:"Listings across the web",s15:"City and area pages",s16:"Local links and mentions",s17:"Map pack comparison",s18:"Indexing basics",s19:"HTTPS, redirects, and duplicates",s20:"Core Web Vitals and mobile",s21:"Broken links and errors",s22:"Site structure and click depth",s23:"Service page depth",s24:"Helpful guides",s25:"FAQ content",s26:"Freshness and accuracy",s27:"Google Search Console",s28:"Google profile performance",s29:"Lead tracking"};
+  var META={s1:["On-page","Outside"],s2:["On-page","Outside"],s3:["On-page","Outside"],s4:["On-page","Outside"],s5:["On-page","Outside"],s6:["On-page","Outside"],s7:["On-page","Outside"],s8:["Local","Outside"],s9:["On-page","Outside"],s10:["Local","Outside"],s11:["Local","Outside"],s12:["Local","Outside"],s13:["Local","Outside"],s14:["Local","Outside"],s15:["Local","Outside"],s16:["Local","Outside"],s17:["Local","Outside"],s18:["Technical","Outside"],s19:["Technical","Outside"],s20:["Technical","Outside"],s21:["Technical","Outside"],s22:["Technical","Outside"],s23:["Content","Outside"],s24:["Content","Outside"],s25:["Content","Outside"],s26:["Content","Outside"],s27:["Measurement","Needs access"],s28:["Measurement","Needs access"],s29:["Measurement","Needs access"]};
+  var TESTS={
+    s1:"Search site:theirdomain.com on Google and read each title. To see the real title, view the page source and find <title>.",
+    s2:"View the page source and search for name=\"description\". Compare the homepage with one service page.",
+    s3:"Right-click the main headline and choose Inspect, or use a free headings-outline browser extension to see the H1 and H2s.",
+    s4:"Type “[service] [city]” into Google. Note the autocomplete suggestions and “People also ask” questions, then compare with the page’s headings and content. For cannibalization, search site:theirdomain.com plus each main service and look for several similar pages.",
+    s5:"Starting from the homepage, try to reach each service page in one or two clicks. Hover over links to read their text. Right-click a menu item and Inspect to see if it’s a real link.",
+    s6:"Click through the menu and read the URL of each page in the address bar.",
+    s7:"Right-click a project photo and choose Inspect to see its alt text and file name. Open it in a new tab to gauge its size.",
+    s8:"Scroll to the footer on a few pages. Compare the name, address or area, and phone with their Google profile.",
+    s9:"Paste the homepage URL into validator.schema.org or Google’s Rich Results Test.",
+    s10:"Search “[company] [city]” on Google. The primary category shows under the name. Compare the profile name with the name on their website and signage.",
+    s11:"Open the profile and check hours, the services list, the service area, the description, and where the Website button goes.",
+    s12:"Open the profile’s photos and filter to those from the owner. Note the dates of the newest ones. Look for an Updates section.",
+    s13:"Open the reviews, sort by newest, and check dates and owner replies. Compare the count with the top 3 map results for their main service.",
+    s14:"Search “[company] [phone number]” and “[company] [city].” Check Yelp, BBB, Angi, Facebook, Apple Maps, and Bing Maps.",
+    s15:"Look for a service area page or city pages. Open two city pages side by side; if the text is the same apart from the city name, tick it.",
+    s16:"Search for the company name and exclude their own site (add -site:theirdomain.com). Check the chamber, association, and supplier sites they mention.",
+    s17:"In a private window, search “[main service] [city]” and note the top 3 map results. Compare reviews, categories, photos, and service pages.",
+    s18:"Search site:theirdomain.com and look for each main service page. View a page’s source and search for “noindex.” Open theirdomain.com/robots.txt and /sitemap.xml.",
+    s19:"Type the domain with http://, https://, with and without www. All four should end on the same https address.",
+    s20:"Run the homepage and a service page at pagespeed.web.dev on mobile. Use the real-user section if it appears; otherwise use the lab result with caution.",
+    s21:"Click every menu and footer link, or run a free broken-link checker. Visit a made-up URL on their site to see the 404 page.",
+    s22:"From the homepage, count the clicks to each main service page and to the project gallery.",
+    s23:"Open each main service page and check for process, prep, timeline, photos of that work, and FAQs. Compare two pages for reused text.",
+    s24:"Open the blog or resources section and read one post. Does it answer a real question with first-hand detail?",
+    s25:"Look for FAQs on the service pages. Compare them with “People also ask” questions for “[service] [city].”",
+    s26:"Check dates on the newest projects and posts, and scan for old prices, years, or services.",
+    s27:"With access, open Search Console: check verification, Sitemaps, Page indexing, and the Performance report.",
+    s28:"With access, open the Google profile’s Performance view. Check the website link for UTM parameters.",
+    s29:"With access, check GA4 key events, any call tracking, and how leads are logged."
+  };
+  var FIX={
+    s1a:"Use “[Main service] in [City] | [Company]” on the homepage",s1b:"Add the service and city to each service page title",s1c:"Write a unique title for every page",s1d:"Shorten titles and remove stuffed keywords",
+    s2a:"Write a meta description for each key page",s2b:"Make each description unique",s2c:"Summarize the page: what, where, proof, next step",
+    s3a:"Make the visible headline real text and the page’s H1",s3b:"Put the service and area in the H1",s3c:"Use H2s for each main section; style with CSS",
+    s4a:"Use the phrases homeowners search for",s4b:"Expand thin pages with process, photos, and FAQs",s4c:"Pick one main page per target; merge (with 301s) or differentiate the rest",s4d:"Rewrite stuffed text naturally",
+    s5a:"Link every service page from the menu and homepage",s5b:"Use descriptive link text",s5c:"Link to city and project pages from related pages",s5d:"Use real HTML links for navigation",
+    s6a:"Switch to readable URLs, with 301 redirects",s6b:"Use descriptive slugs for new pages",s6c:"Use hyphens and keep URLs short",
+    s7a:"Write descriptive alt text",s7b:"Rename images descriptively before uploading",s7c:"Resize and compress images",s7d:"Move important info into real text",s7e:"Rewrite alt text to describe, not stuff",
+    s8a:"Add business details to the footer of every page",s8b:"Make the phone real text and tappable",s8c:"Describe the service area on the contact page",s8d:"Match site details to the Google profile",
+    s9a:"Add HousePainter or LocalBusiness JSON-LD",s9b:"Fix errors and match the visible page",s9c:"Remove expectations of review stars; they won’t show",s9d:"Add sameAs links to real profiles",
+    s10a:"Set the primary category to the most specific match (usually Painter)",s10b:"Remove categories that aren’t real service lines",s10c:"Use the real-world business name only",s10d:"Merge or remove duplicate profiles",
+    s11a:"Update regular and holiday hours",s11b:"List every real service",s11c:"Set a realistic service area and hide a home address",s11d:"Write a plain, specific description",s11e:"Point the Website button to the right page",
+    s12a:"Add real project photos",s12b:"Set up a routine for adding new job photos",s12c:"Post updates about recent projects",
+    s13a:"Ask every customer for a review after each job",s13b:"Make review requests a standard step",s13c:"Reply personally to every review",s13d:"Stop incentives and selective requests",
+    s14a:"Match details on every listing",s14b:"Claim Apple Business Connect and Bing Places",s14c:"Fix or close outdated listings",
+    s15a:"Add a service area page with local projects",s15b:"Merge or rewrite copy-paste city pages",s15c:"Add local projects and reviews to city pages",
+    s16a:"Get listed by local organizations",s16b:"Claim member listings with a link",s16c:"Share genuine community involvement",s16d:"Stop paid link schemes",
+    s17a:"Close the gaps with competitors in the map results",s17b:"Build a steady review routine to close the review gap",s17c:"Match competitors’ profile completeness",s17d:"Add the service pages competitors have",
+    s18a:"Get key pages indexed and linked",s18b:"Remove the accidental noindex",s18c:"Unblock important pages in robots.txt",s18d:"Publish and submit an XML sitemap",
+    s19a:"Switch to HTTPS everywhere",s19b:"Redirect all versions to one https address",s19c:"301-redirect old URLs to current pages",s19d:"Add canonical tags for duplicates",
+    s20a:"Fix the failing Core Web Vital",s20b:"Speed up the main image",s20c:"Fix mobile layout problems",s20d:"Remove or delay heavy scripts and plugins",
+    s21a:"Fix or redirect broken links",s21b:"Finish or remove placeholder pages",s21c:"Replace broken images",s21d:"Make the 404 page helpful",
+    s22a:"Link main services from the menu and homepage",s22b:"Link to orphan pages or remove them",s22c:"Link projects and guides from service pages",
+    s23a:"Create a page for each main service",s23b:"Add process, timeline, photos, and FAQs",s23c:"Rewrite reused text for each service",
+    s24a:"Add 3–4 useful guides",s24b:"Improve or remove thin posts",s24c:"Add real photos and first-hand detail",
+    s25a:"Add real FAQs to service pages",s25b:"Replace filler with real customer questions",s25c:"Give specific answers",
+    s26a:"Add recent projects monthly",s26b:"Update outdated details",s26c:"Replace the old news feed with recent projects",
+    s27a:"Set up and verify Search Console",s27b:"Submit the sitemap",s27c:"Fix errors on key pages",s27d:"Review search queries monthly",
+    s28a:"Review profile performance monthly",s28b:"Add UTM tracking to the profile’s website link",
+    s29a:"Set up GA4 key events for forms and calls",s29b:"Track calls by source",s29c:"Log every lead with its source",s29d:"Send a monthly leads report"
+  };
+  var DETECTMAP={m6a:"s1a",m6d:"s1d",m6e:"s2a",m2g:"s3a",m2a:"s3a",m22a:"s7a",m22b:"s7b",m20a:"s9a",m23a:"s19a",m23e:"s18b",m40a:"s29a"};
+  var state={f:{},c:{},ui:{quick:false,access:"all",cat:"all"}};
+  function load(){try{var s=localStorage.getItem(KEY);if(s){var p=JSON.parse(s);if(p&&typeof p==="object")state={f:p.f||{},c:p.c||{},ui:p.ui||{quick:false,access:"all",cat:"all"}};}}catch(e){}}
+  function save(){try{localStorage.setItem(KEY,JSON.stringify(state));}catch(e){}}
+  function visible(m){var a=state.ui.access,c=state.ui.cat;return (a==="all"||META[m][1]===a)&&(c==="all"||META[m][0]===c);}
+  var fields=["company","url","city","service"];
+  function v(id){return (state.f[id]||"").trim();}
+
+  function applyView(){
+    document.body.classList.toggle("quick",!!state.ui.quick);
+    document.getElementById("quickBtn").setAttribute("aria-pressed",state.ui.quick?"true":"false");
+    METRICS.forEach(function(m){var s=document.getElementById(m);if(s)s.classList.toggle("hide",!visible(m));});
+    document.getElementById("fAccess").value=state.ui.access;document.getElementById("fCat").value=state.ui.cat;
+  }
+
+  function render(){
+    var total=0,withIssues=0;
+    METRICS.forEach(function(m){
+      var n=document.querySelectorAll('.checks[data-metric="'+m+'"] input:checked').length;total+=n;if(n)withIssues++;
+      document.querySelector('[data-count="'+m+'"]').textContent=n+(n===1?" problem found":" problems found");
+    });
+    ["pcount","tbP"].forEach(function(id){document.getElementById(id).textContent=total;});
+    ["fcount","tbF"].forEach(function(id){document.getElementById(id).textContent=withIssues;});
+    var co=v("company")||"[Company]",url=v("url"),city=v("city"),svc=v("service");
+    var out=["LOCAL SEO AUDIT: "+co+(url?" ("+url+")":""),(city||svc)?("Focus: "+[svc,city].filter(Boolean).join(" in ")):"",""];
+    var any=false;
+    METRICS.forEach(function(m,i){
+      var boxes=document.querySelectorAll('.checks[data-metric="'+m+'"] input:checked');if(!boxes.length)return;any=true;
+      out.push((i+1)+". "+TITLES[m].toUpperCase()+" ["+META[m][0]+"]");
+      boxes.forEach(function(c){var t=c.parentNode.querySelector("span").textContent;out.push("   - Found: "+t);if(FIX[c.dataset.id])out.push("     Fix: "+FIX[c.dataset.id]);});
+      out.push("");
+    });
+    if(!any)out.push("No problems ticked yet.");
+    document.getElementById("report").textContent=out.filter(function(l,i){return !(l===""&&i===1);}).join("\n");
+    save();renderTOC();
+  }
+
+  function renderTOC(){
+    var list=document.getElementById("tocList");list.innerHTML="";
+    function item(target,num,title,meta){
+      var li=document.createElement("li"),a=document.createElement("a");a.href="#"+target;a.dataset.target=target;
+      var left=document.createElement("span");
+      if(num){var n=document.createElement("span");n.className="num";n.textContent=num;left.appendChild(n);}
+      left.appendChild(document.createTextNode(title));a.appendChild(left);
+      if(meta){var mm=document.createElement("span");mm.className="meta";mm.textContent=meta;a.appendChild(mm);}
+      li.appendChild(a);list.appendChild(li);
+    }
+    item("setup","","This audit","");item("myths","","Myths to avoid","");
+    var shown=0;
+    METRICS.forEach(function(m,i){if(!visible(m))return;shown++;var n=document.querySelectorAll('.checks[data-metric="'+m+'"] input:checked').length;item(m,"Check "+(i+1)+" · "+META[m][0]+" · "+META[m][1],TITLES[m],n?n+" found":"");});
+    if(!shown){var li=document.createElement("li");li.className="notes-empty";li.style.padding=".5rem .6rem";li.textContent="No checks match these filters.";list.appendChild(li);}
+    item("sources","","Sources","");
+  }
+
+  var overlay=document.getElementById("overlay"),lastFocus=null;
+  var triggers={tocDrawer:["openToc"],reportDrawer:["openReport"]};
+  function setExpanded(id,val){(triggers[id]||[]).forEach(function(t){document.getElementById(t).setAttribute("aria-expanded",val?"true":"false");});}
+  function closeAll(restore){
+    document.querySelectorAll(".drawer.open").forEach(function(d){d.classList.remove("open");d.setAttribute("aria-hidden","true");setExpanded(d.id,false);});
+    overlay.hidden=true;document.body.classList.remove("locked");
+    if(restore!==false&&lastFocus&&lastFocus.focus)lastFocus.focus();
+  }
+  function openDrawer(id){
+    closeAll(false);lastFocus=document.activeElement;
+    var d=document.getElementById(id);d.classList.add("open");d.setAttribute("aria-hidden","false");setExpanded(id,true);
+    overlay.hidden=false;document.body.classList.add("locked");var c=d.querySelector(".dclose");if(c)c.focus();
+  }
+  function copyText(text,okId){
+    function done(){var o=document.getElementById(okId);o.textContent="Copied";setTimeout(function(){o.textContent="";},1800);}
+    function fallback(){var t=document.createElement("textarea");t.value=text;t.style.position="absolute";t.style.left="-9999px";document.body.appendChild(t);t.select();try{document.execCommand("copy");done();}catch(e){}document.body.removeChild(t);}
+    if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(text).then(done,fallback);}else{fallback();}
+  }
+
+  load();
+  if(QSITE&&!state.f.url)state.f.url=QSITE.replace(/^https?:\/\//,"").replace(/\/$/,"");
+  if(QNAME&&!state.f.company)state.f.company=QNAME;
+  METRICS.forEach(function(m){
+    var s=document.getElementById(m);if(!s)return;
+    var tape=s.querySelector(".tape");
+    if(tape&&!s.querySelector(".chip")){var ch=document.createElement("span");ch.className="chip";ch.textContent=META[m][0]+" · "+META[m][1];tape.insertAdjacentElement("afterend",ch);}
+    var cnt=s.querySelector('[data-count="'+m+'"]');
+    if(cnt&&TESTS[m]){var p=document.createElement("p");p.className="test";var b=document.createElement("b");b.textContent="How to test: ";p.appendChild(b);p.appendChild(document.createTextNode(TESTS[m]));cnt.insertAdjacentElement("afterend",p);}
+  });
+  fields.forEach(function(id){var el=document.getElementById(id);el.value=state.f[id]||"";el.addEventListener("input",function(){state.f[id]=el.value;render();});});
+  document.querySelectorAll(".checks input").forEach(function(c){c.checked=!!state.c[c.dataset.id];c.addEventListener("change",function(){state.c[c.dataset.id]=c.checked;render();});});
+  document.getElementById("quickBtn").addEventListener("click",function(){state.ui.quick=!state.ui.quick;applyView();save();});
+  document.getElementById("fAccess").addEventListener("change",function(e){state.ui.access=e.target.value;applyView();render();});
+  document.getElementById("fCat").addEventListener("change",function(e){state.ui.cat=e.target.value;applyView();render();});
+  document.getElementById("reset").addEventListener("click",function(){state={f:{},c:{},ui:state.ui};fields.forEach(function(id){document.getElementById(id).value="";});document.querySelectorAll(".checks input").forEach(function(c){c.checked=false;});document.querySelectorAll(".auto").forEach(function(a){a.remove();});document.getElementById("autoNote").hidden=true;render();window.scrollTo(0,0);});
+  document.getElementById("openToc").addEventListener("click",function(){openDrawer("tocDrawer");});
+  document.getElementById("openReport").addEventListener("click",function(){openDrawer("reportDrawer");});
+  document.querySelectorAll("[data-open-report]").forEach(function(b){b.addEventListener("click",function(){openDrawer("reportDrawer");});});
+  document.querySelectorAll("[data-close]").forEach(function(b){b.addEventListener("click",function(){closeAll();});});
+  overlay.addEventListener("click",function(){closeAll();});
+  document.addEventListener("keydown",function(e){if(e.key==="Escape"&&document.querySelector(".drawer.open"))closeAll();});
+  document.getElementById("tocList").addEventListener("click",function(e){
+    var a=e.target.closest("a");if(!a)return;e.preventDefault();closeAll(false);
+    var t=document.getElementById(a.dataset.target);if(!t)return;
+    var reduce=window.matchMedia&&window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    t.scrollIntoView({behavior:reduce?"auto":"smooth",block:"start"});
+    var h=t.querySelector("h2");if(h){h.setAttribute("tabindex","-1");h.focus({preventScroll:true});}
+  });
+  document.getElementById("copyReport").addEventListener("click",function(){copyText(document.getElementById("report").textContent,"reportOk");});
+  window.addEventListener("message",function(e){
+    if(window.parent===window||e.source!==window.parent)return;
+    if(!/^chrome-extension:\/\//.test(e.origin))return;
+    var d=e.data;if(!d||d.type!=="psa-detect"||!d.results)return;
+    var total=0,added=0;
+    Object.keys(d.results).forEach(function(src){
+      var id=DETECTMAP[src]||src;var c=document.querySelector('.checks input[data-id="'+id+'"]');if(!c)return;total++;
+      var lab=c.parentNode;if(!lab.querySelector(".auto")){var s=document.createElement("span");s.className="auto";s.textContent="Detected";s.title=String(d.results[src]||"");lab.appendChild(s);}
+      if(!(id in state.c)){c.checked=true;state.c[id]=true;added++;}
+    });
+    var note=document.getElementById("autoNote");note.hidden=false;
+    note.textContent=total?("The extension detected "+total+" possible issue"+(total===1?"":"s")+" (marked “Detected”; hover for details). "+(added?added+" were ticked for you. ":"")+"Confirm each one."):"The extension found no technical issues on this page. Manual checks still apply.";
+    render();
+  });
+  applyView();render();
+})();
+
+</script>
+</body>
+</html>

@@ -1,0 +1,869 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Messaging Audit</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;700;800&family=Public+Sans:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#F6F7F4;--surface:#FFFFFF;--ink:#1F2B33;--muted:#5A6670;--line:#D9DDD6;
+  --tape:#E8C15A;--tape-ink:#3D3108;--good:#2E6B57;--good-bg:#E6F0EA;--bad:#A3412E;--bad-bg:#F6E6E1;
+  --accent:#2B5C7A;--accent-ink:#FFFFFF;--field:#FBFBF9;
+  color-scheme:light;
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px);
+  padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --bg:#141A1E;--surface:#1C2429;--ink:#E8ECE9;--muted:#9AA6AE;--line:#2E3A41;
+    --tape:#D9B24C;--tape-ink:#2B2206;--good:#7CC7A8;--good-bg:#1E3029;--bad:#E8957F;--bad-bg:#3A2420;
+    --accent:#7FB3D3;--accent-ink:#0E1A22;--field:#172024;color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#141A1E;--surface:#1C2429;--ink:#E8ECE9;--muted:#9AA6AE;--line:#2E3A41;
+  --tape:#D9B24C;--tape-ink:#2B2206;--good:#7CC7A8;--good-bg:#1E3029;--bad:#E8957F;--bad-bg:#3A2420;
+  --accent:#7FB3D3;--accent-ink:#0E1A22;--field:#172024;color-scheme:dark;
+}
+*,*::before,*::after{box-sizing:inherit}
+html{scroll-padding-top:calc(env(safe-area-inset-top,0px) + 72px)}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.6 "Public Sans",system-ui,-apple-system,"Segoe UI",sans-serif}
+.wrap{max-width:860px;margin:0 auto;padding:2rem 1.25rem 4rem}
+h1,h2,h3{font-family:Archivo,"Arial Narrow",system-ui,sans-serif;line-height:1.2;margin:0}
+h1{font-size:clamp(2rem,6vw,3rem);font-weight:800;letter-spacing:-0.02em}
+h2{font-size:1.55rem;font-weight:800}
+h3{font-size:1.05rem;font-weight:700;margin:1.5rem 0 .5rem}
+p{margin:.5rem 0}
+a{color:var(--accent)}
+.lede{color:var(--muted);max-width:62ch;margin-top:.75rem}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:1.25rem}
+.setup{margin-top:1.75rem}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:.75rem}
+label.f{display:block;font-size:.85rem;color:var(--muted);font-weight:600}
+input[type=text],input[type=url],textarea{width:100%;margin-top:.25rem;padding:.55rem .65rem;border:1px solid var(--line);border-radius:6px;background:var(--field);color:var(--ink);font:inherit;font-size:.95rem}
+textarea{min-height:4.5rem;resize:vertical}
+input:focus-visible,textarea:focus-visible,button:focus-visible,a:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.bar{display:flex;flex-wrap:wrap;gap:.75rem 1.5rem;align-items:center;justify-content:space-between;margin-top:1rem;font-size:.92rem;color:var(--muted)}
+.bar b{color:var(--ink)}
+button{font:inherit;font-size:.9rem;font-weight:600;cursor:pointer;border-radius:6px;padding:.5rem .9rem;border:1px solid var(--line);background:var(--surface);color:var(--ink)}
+button.primary{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+.steps{margin:1rem 0 0;padding-left:1.25rem;color:var(--muted);font-size:.95rem}
+.steps li{margin:.2rem 0}
+.metric{margin-top:3rem}
+.mhead{display:flex;gap:1rem;align-items:flex-start;justify-content:space-between;flex-wrap:wrap}
+.tape{display:inline-block;background:var(--tape);color:var(--tape-ink);font:800 .85rem Archivo,system-ui,sans-serif;padding:.2rem .7rem;transform:rotate(-2deg);margin-bottom:.6rem;box-shadow:0 1px 0 rgba(0,0,0,.08)}
+.q{color:var(--muted);margin:.35rem 0 0;max-width:60ch}
+.flag{white-space:nowrap}
+.flag[aria-pressed="true"]{background:var(--tape);color:var(--tape-ink);border-color:var(--tape)}
+.cols{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,1fr);gap:1.25rem;margin-top:1.25rem}
+@media (max-width:720px){.cols{grid-template-columns:minmax(0,1fr)}}
+.checks{list-style:none;margin:0;padding:0}
+.checks li{border-bottom:1px solid var(--line)}
+.checks li:last-child{border-bottom:0}
+.checks label{display:flex;gap:.65rem;align-items:flex-start;padding:.55rem 0;cursor:pointer;font-size:.95rem}
+.checks input{margin-top:.3rem;width:1.05rem;height:1.05rem;accent-color:var(--bad);flex:none}
+.count{font-size:.85rem;color:var(--muted);margin-top:.5rem}
+.wf{display:grid;grid-template-columns:1fr 1fr;gap:.6rem}
+.wf figure{margin:0}
+.wf figcaption{font-size:.8rem;font-weight:600;margin-bottom:.3rem}
+.wf .now figcaption{color:var(--bad)}.wf .better figcaption{color:var(--good)}
+.wf svg{width:100%;height:auto;display:block;border:1px solid var(--line);border-radius:6px;background:var(--field)}
+.s-line{fill:var(--line)}.s-ink{fill:var(--muted)}.s-acc{fill:var(--accent)}.s-good{fill:var(--good)}.s-bad{fill:var(--bad)}.s-tape{fill:var(--tape)}
+.s-stroke{fill:none;stroke:var(--muted);stroke-width:1.2}
+.s-text{fill:var(--muted);font:600 9px "Public Sans",system-ui,sans-serif}
+.s-text-acc{fill:var(--accent-ink);font:700 8px "Public Sans",system-ui,sans-serif}
+.ev{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:.75rem;margin-top:.5rem}
+.case{border-radius:8px;padding:.9rem 1rem;font-size:.93rem}
+.case.right{background:var(--good-bg)}.case.wrong{background:var(--bad-bg)}
+.case h4{margin:0 0 .3rem;font:700 .9rem Archivo,system-ui,sans-serif}
+.case.right h4{color:var(--good)}.case.wrong h4{color:var(--bad)}
+.etype{display:block;margin-top:.5rem;font-size:.8rem;color:var(--muted)}
+.note{border-left:3px solid var(--tape);padding:.5rem .9rem;margin:1rem 0;font-size:.93rem;background:var(--surface)}
+.rules{margin:.25rem 0 0;padding-left:1.2rem}
+.rules li{margin:.4rem 0}
+.formula{font-family:Archivo,system-ui,sans-serif;font-weight:700;background:var(--field);border:1px dashed var(--line);border-radius:6px;padding:.6rem .8rem;margin:.5rem 0}
+.say{margin-top:1.25rem;background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:.9rem 1rem}
+.say b{display:block;font-size:.85rem;color:var(--muted);margin-bottom:.2rem}
+.notes-empty{color:var(--muted);font-size:.95rem}
+.vnote{border-top:1px solid var(--line);padding-top:.75rem;margin-top:.75rem}
+.vnote:first-child{border-top:0;padding-top:0;margin-top:0}
+.vnote h4{margin:0 0 .25rem;font:700 1rem Archivo,system-ui,sans-serif}
+.vnote ul{margin:.25rem 0;padding-left:1.2rem;font-size:.93rem;color:var(--muted)}
+pre.out{white-space:pre-wrap;word-wrap:break-word;font:15px/1.6 "Public Sans",system-ui,sans-serif;background:var(--field);border:1px solid var(--line);border-radius:8px;padding:1rem;margin:.75rem 0 0}
+.row{display:flex;gap:.5rem;flex-wrap:wrap;align-items:center;margin-top:.75rem}
+.ok{font-size:.85rem;color:var(--good)}
+.subjects{margin:.25rem 0 0;padding-left:1.2rem}
+.sources{font-size:.88rem;color:var(--muted)}
+.sources li{margin:.35rem 0}
+.topbar{position:sticky;top:env(safe-area-inset-top,0px);z-index:20;background:var(--bg);border-bottom:1px solid var(--line)}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:21;background:var(--bg)}
+.topbar-in{max-width:860px;margin:0 auto;padding:.6rem 1.25rem;display:flex;gap:.5rem;align-items:center;justify-content:space-between}
+.tb-stats{font-size:.85rem;color:var(--muted)}
+.tb-stats b{color:var(--ink)}
+.tb-right{display:flex;gap:.4rem}
+@media (max-width:560px){.tb-stats{display:none}}
+.metric,.setup{scroll-margin-top:calc(env(safe-area-inset-top,0px) + 72px)}
+.drawer{position:fixed;top:0;bottom:0;z-index:40;overflow-y:auto;background:var(--surface);box-shadow:0 0 0 1px var(--line);padding:calc(env(safe-area-inset-top,0px) + 1rem) 1.1rem calc(env(safe-area-inset-bottom,0px) + 1.5rem);visibility:hidden;transition:transform .22s ease,visibility .22s}
+.drawer.left{left:0;width:min(320px,86vw);transform:translateX(-100%)}
+.drawer.right{right:0;width:min(500px,94vw);transform:translateX(100%)}
+.drawer.open{transform:none;visibility:visible}
+.overlay{position:fixed;inset:0;z-index:30;background:rgba(0,0,0,.4)}
+.overlay[hidden]{display:none}
+body.locked{overflow:hidden}
+.dhead{display:flex;justify-content:space-between;align-items:center;gap:.5rem;margin-bottom:.75rem}
+.toc{list-style:none;margin:0;padding:0}
+.toc a{display:flex;justify-content:space-between;align-items:baseline;gap:.75rem;padding:.55rem .6rem;border-radius:6px;text-decoration:none;color:var(--ink);font-size:.95rem}
+.toc a:hover{background:var(--field)}
+.toc .num{color:var(--muted);font-size:.8rem;display:block}
+.toc .meta{font-size:.78rem;color:var(--muted);white-space:nowrap}
+.toc .meta.flagged{background:var(--tape);color:var(--tape-ink);padding:0 .4rem;border-radius:4px}
+.dlinks{margin-top:1rem;border-top:1px solid var(--line);padding-top:1rem;display:grid;gap:.5rem}
+.tabs{display:flex;gap:.4rem;margin-bottom:1rem}
+.tabs [aria-selected="true"]{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+.drawer .panel{background:var(--bg)}
+.chip{display:inline-block;margin-left:.5rem;font-size:.75rem;font-weight:600;color:var(--muted);border:1px solid var(--line);border-radius:999px;padding:.05rem .55rem;vertical-align:middle}
+.test{font-size:.88rem;margin:.6rem 0 0;padding:.5rem .65rem;background:var(--field);border-radius:6px;border:1px dashed var(--line)}
+select{width:100%;margin-top:.25rem;padding:.5rem .6rem;border:1px solid var(--line);border-radius:6px;background:var(--field);color:var(--ink);font:inherit;font-size:.92rem}
+.filters{display:grid;gap:.6rem;margin-bottom:1rem}
+.metric.hide{display:none}
+.auto{display:inline-block;margin-left:.4rem;font-size:.72rem;font-weight:600;color:var(--accent);border:1px solid var(--accent);border-radius:999px;padding:0 .45rem;white-space:nowrap;vertical-align:middle}
+#quickBtn[aria-pressed="true"]{background:var(--tape);color:var(--tape-ink);border-color:var(--tape)}
+body.quick .metric>h3,body.quick .metric>p,body.quick .metric>.ev,body.quick .metric>.note,body.quick .metric>ul.rules,body.quick .metric>.formula,body.quick .metric>.say,body.quick .wf,body.quick #sources{display:none}
+body.quick .cols{grid-template-columns:minmax(0,1fr)}
+body.quick .metric{margin-top:2rem}
+@media (max-width:420px){.topbar button{padding:.45rem .55rem;font-size:.82rem}}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+
+.cols.one{grid-template-columns:minmax(0,1fr)}
+.ask{margin-top:1rem;padding:.75rem .9rem;border-radius:8px;background:var(--good-bg);font-size:.92rem}
+.ask b{display:block;color:var(--good);font-family:Archivo,system-ui,sans-serif}
+.ask ul{margin:.35rem 0 0;padding-left:1.2rem}
+.ask li{margin:.25rem 0}
+body.quick .metric>.test{display:none}
+</style>
+</head>
+<body>
+<header class="topbar">
+  <div class="topbar-in">
+    <button type="button" id="openToc" aria-controls="tocDrawer" aria-expanded="false">Contents</button>
+    <span class="tb-stats">Problems <b id="tbP">0</b> · Checks with issues <b id="tbF">0</b></span>
+    <span class="tb-right">
+      <button type="button" id="quickBtn" aria-pressed="false">Quick scan</button>
+      <button type="button" id="openFindings" aria-controls="toolDrawer" aria-expanded="false">Findings</button>
+      <button type="button" class="primary" id="openBrief" aria-controls="toolDrawer" aria-expanded="false">Brief</button>
+    </span>
+  </div>
+</header>
+
+<aside class="drawer left" id="tocDrawer" role="dialog" aria-modal="true" aria-labelledby="toc-h" aria-hidden="true">
+  <div class="dhead"><h2 id="toc-h" style="font-size:1.1rem">Contents</h2><button type="button" class="dclose" data-close>Close</button></div>
+  <div class="filters">
+    <label class="f">Source
+      <select id="fAccess"><option value="all">All checks</option><option value="Outside">Outside (from the site and web)</option><option value="Owner input">Owner input (ask on a call)</option></select></label>
+    <label class="f">Category
+      <select id="fCat"><option value="all">All categories</option><option>Positioning</option><option>Copy</option></select></label>
+  </div>
+  <ul class="toc" id="tocList"></ul>
+  <div class="dlinks"><button type="button" data-open-tab="tab-findings">Open findings</button><button type="button" data-open-tab="tab-brief">Open messaging brief</button></div>
+</aside>
+<div class="overlay" id="overlay" hidden></div>
+
+<aside class="drawer right" id="toolDrawer" role="dialog" aria-modal="true" aria-labelledby="tool-h" aria-hidden="true">
+  <div class="dhead"><h2 id="tool-h" style="font-size:1.1rem">Toolkit</h2><button type="button" class="dclose" data-close>Close</button></div>
+  <div class="tabs" role="tablist" aria-label="Toolkit">
+    <button type="button" role="tab" id="t-findings" aria-controls="tab-findings" aria-selected="true" data-tab="tab-findings">Findings</button>
+    <button type="button" role="tab" id="t-brief" aria-controls="tab-brief" aria-selected="false" data-tab="tab-brief">Messaging brief</button>
+  </div>
+  <div id="tab-findings" role="tabpanel" aria-labelledby="t-findings">
+    <p class="q" style="margin-top:0">Every problem you ticked, paired with its fix. Paste into a proposal or call notes, and edit before sending.</p>
+    <pre class="out" id="report"></pre>
+    <div class="row"><button type="button" class="primary" id="copyReport">Copy findings</button><span class="ok" id="reportOk" aria-live="polite"></span></div>
+  </div>
+  <div id="tab-brief" role="tabpanel" aria-labelledby="t-brief" hidden>
+    <p class="q" style="margin-top:0">Fill this in from your research and the owner call. It builds a one-page brief you can hand over or use to write their site, ads, and social.</p>
+    <div class="panel" style="margin-top:1rem">
+      <label class="f">Ideal customer (who they serve best)<textarea id="b_customer" placeholder="Homeowners in older Tampa neighborhoods with $8k–$20k exterior repaints"></textarea></label>
+      <label class="f" style="margin-top:.75rem">What they’d do otherwise (competitive alternatives)<textarea id="b_alts" placeholder="Hire a cheaper crew from Angi, DIY, or put it off another year"></textarea></label>
+      <div class="grid" style="margin-top:.75rem">
+        <label class="f">Problem (in customer words)<input type="text" id="b_problem" placeholder="peeling paint and crews that leave a mess"></label>
+        <label class="f">What they do<input type="text" id="b_solution" placeholder="careful prep and exterior repaints"></label>
+        <label class="f">Result for the customer<input type="text" id="b_result" placeholder="a home that looks new for years"></label>
+      </div>
+      <label class="f" style="margin-top:.75rem">Value proposition (one sentence)<textarea id="b_value" placeholder="For Tampa homeowners who want it done right once, we…"></textarea></label>
+      <h3>Differentiators, each with proof</h3>
+      <div class="grid"><label class="f">Differentiator 1<input type="text" id="b_d1"></label><label class="f">Proof<input type="text" id="b_p1"></label></div>
+      <div class="grid" style="margin-top:.5rem"><label class="f">Differentiator 2<input type="text" id="b_d2"></label><label class="f">Proof<input type="text" id="b_p2"></label></div>
+      <div class="grid" style="margin-top:.5rem"><label class="f">Differentiator 3<input type="text" id="b_d3"></label><label class="f">Proof<input type="text" id="b_p3"></label></div>
+      <label class="f" style="margin-top:.75rem">Price position
+        <select id="b_price"><option value="">Choose…</option><option>Premium</option><option>Mid-market</option><option>Budget</option></select></label>
+      <label class="f" style="margin-top:.75rem">Offer and risk reversal<textarea id="b_offer" placeholder="Free written estimate in 48 hours; 2-year workmanship warranty"></textarea></label>
+      <label class="f" style="margin-top:.75rem">Top objections and answers (one per line)<textarea id="b_objections" placeholder="Mess → floors and furniture covered, daily cleanup"></textarea></label>
+      <label class="f" style="margin-top:.75rem">Customer phrases to reuse (from reviews)<textarea id="b_voc" placeholder="“They left the house cleaner than they found it”"></textarea></label>
+      <label class="f" style="margin-top:.75rem">Main call to action<input type="text" id="b_cta" placeholder="Get my free estimate"></label>
+    </div>
+    <h3>Brief</h3>
+    <pre class="out" id="brief"></pre>
+    <div class="row"><button type="button" class="primary" id="copyBrief">Copy brief</button><span class="ok" id="briefOk" aria-live="polite"></span></div>
+  </div>
+</aside>
+
+<div class="wrap">
+<header>
+  <h1>Messaging audit</h1>
+  <p class="lede">Positioning first, then copywriting. For painting and home-service contractors, after a prospect replies or as a paid engagement. Tick the problems you find, ask the owner the listed questions, and fill in the messaging brief as you go.</p>
+</header>
+
+<section class="panel setup" id="setup" aria-labelledby="setup-h">
+  <h2 id="setup-h" style="font-size:1.15rem">This audit</h2>
+  <div class="grid" style="margin-top:.75rem">
+    <label class="f">Company<input type="text" id="company" placeholder="Sunshine Painting Co."></label>
+    <label class="f">Website<input type="url" id="url" placeholder="sunshinepainting.com"></label>
+    <label class="f">Main city or area<input type="text" id="city" placeholder="Tampa, FL"></label>
+  </div>
+  <div class="bar">
+    <span>Problems found: <b id="pcount">0</b> · Checks with issues: <b id="fcount">0</b></span>
+    <button type="button" id="reset">Start a new audit</button>
+  </div>
+  <ol class="steps">
+    <li><b>Outside</b> checks use the site, reviews, and competitors. <b>Owner input</b> checks list questions to ask on a call.</li>
+    <li>Do the positioning checks first; copy only works once positioning is clear.</li>
+    <li>Fill in the <b>Brief</b> as you learn things. It’s the deliverable.</li>
+  </ol>
+</section>
+
+<section class="metric" id="evidence" aria-labelledby="ev-h">
+  <span class="tape">Read first</span>
+  <h2 id="ev-h">How evidence is labeled</h2>
+  <div class="panel" style="margin-top:1rem">
+    <ul class="rules" style="margin:0">
+      <li><b>Research:</b> studies with real users or large data (NN/g, Baymard, Spiegel Research Center). Strongest.</li>
+      <li><b>Practitioner test:</b> a real test or case study published by the people who ran it (Copyhackers, CXL). Valuable, but one business’s result.</li>
+      <li><b>Framework:</b> a respected method, not proof (April Dunford’s positioning, StoryBrand).</li>
+      <li><b>Regulation:</b> rules that apply regardless of results (FTC).</li>
+    </ul>
+  </div>
+</section>
+
+<!-- P1 -->
+<section class="metric" id="p1" aria-labelledby="p1-h">
+  <div class="mhead"><div><span class="tape">Check 1</span><h2 id="p1-h">Ideal customer</h2><p class="q">Is it clear who this company serves best, and does the site speak to them?</p></div></div>
+  <div class="cols one"><div class="panel"><h3 style="margin-top:0">Spot it</h3>
+    <ul class="checks" data-metric="p1">
+      <li><label><input type="checkbox" data-id="p1a"><span>The site speaks to “everyone”; no customer type is named or shown</span></label></li>
+      <li><label><input type="checkbox" data-id="p1b"><span>Photos and copy don’t match the jobs they want more of</span></label></li>
+      <li><label><input type="checkbox" data-id="p1c"><span>The owner can’t describe their best-fit customer clearly</span></label></li>
+    </ul><p class="count" data-count="p1">0 problems found</p>
+    <div class="ask"><b>Ask the owner</b><ul><li>Which five recent jobs would you happily repeat? What do those customers have in common (home type, area, budget)?</li><li>Which jobs do you want fewer of?</li><li>Who refers you the most work?</li></ul></div></div></div>
+  <h3>Why it matters</h3>
+  <p>NN/g found people look for signs a company serves “people like me.” Cleaning services that only showed large condos and offices made participants with smaller homes question whether they’d be welcome; as NN/g put it, no one wants to feel like a second-rate customer. April Dunford’s positioning framework starts from the same idea: define the customers who care most about what you do best.</p>
+  <div class="ev">
+    <div class="case right"><h4>Research</h4><p>NN/g observed people preferring service sites whose photos and content matched their own situation.</p><span class="etype">Evidence type: research (NN/g usability study, 2016).</span></div>
+    <div class="case wrong"><h4>Framework</h4><p>Dunford’s <i>Obviously Awesome</i> defines target customers as those who care a lot about the value only you can deliver.</p><span class="etype">Evidence type: framework.</span></div>
+  </div>
+  <h3>How to fix it</h3>
+  <ul class="rules">
+    <li><b>Name the best-fit customer</b> in the brief: home type, area, job size, what they care about.</li>
+    <li><b>Make the hero, gallery, and reviews reflect them.</b></li>
+    <li><b>Give secondary audiences their own path</b> (for example, a page for property managers).</li>
+  </ul>
+</section>
+
+<!-- P2 -->
+<section class="metric" id="p2" aria-labelledby="p2-h">
+  <div class="mhead"><div><span class="tape">Check 2</span><h2 id="p2-h">Competitor messaging</h2><p class="q">What do the local alternatives claim, and where’s the open space?</p></div></div>
+  <div class="cols">
+    <div class="panel"><h3 style="margin-top:0">Spot it</h3>
+      <ul class="checks" data-metric="p2">
+        <li><label><input type="checkbox" data-id="p2a"><span>Their headline and claims are nearly the same as the top competitors’</span></label></li>
+        <li><label><input type="checkbox" data-id="p2b"><span>A claim competitors don’t make is true for them but not used</span></label></li>
+        <li><label><input type="checkbox" data-id="p2c"><span>They ignore non-competitor alternatives (DIY, a handyman, waiting another year)</span></label></li>
+      </ul><p class="count" data-count="p2">0 problems found</p></div>
+    <div class="wf" aria-label="Wireframe: comparison grid of competitor claims">
+      <figure class="now"><figcaption>Competitor grid</figcaption><svg viewBox="0 0 160 130" role="img" aria-label="Grid comparing headlines and claims of three competitors and the prospect"><g class="s-text" style="font-size:7px"><text x="8" y="16" style="fill:var(--ink)">Company</text><text x="60" y="16" style="fill:var(--ink)">Main claim</text><text x="8" y="36">A1 Painters</text><text x="60" y="36">Quality, fair prices</text><text x="8" y="54">ProCoat</text><text x="60" y="54">Quality, fair prices</text><text x="8" y="72">Brush &amp; Co</text><text x="60" y="72">Family owned</text><text x="8" y="96" style="fill:var(--good)">Prospect</text><text x="60" y="96" style="fill:var(--good)">Daily cleanup + 2-yr warranty</text></g><rect x="4" y="84" width="152" height="18" class="s-good" opacity=".15"/></svg></figure>
+      <figure class="better"><figcaption>Open space</figcaption><svg viewBox="0 0 160 130" role="img" aria-label="Note showing the unclaimed position"><rect x="8" y="20" width="144" height="70" class="s-tape" opacity=".35"/><g class="s-text"><text x="16" y="42" style="fill:var(--ink)">Nobody claims:</text><text x="16" y="58">“Live normally during</text><text x="16" y="72">the job”</text></g></svg></figure>
+    </div>
+  </div>
+  <h3>Why it matters</h3>
+  <p>Positioning is relative. Dunford’s framework begins with competitive alternatives: what customers would do if this company didn’t exist, which includes doing nothing or DIY. NN/g found that when offerings look similar, people fall back on surface cues like design, so standing apart needs a real, visible difference.</p>
+  <div class="ev">
+    <div class="case right"><h4>Framework</h4><p>Dunford’s process lists competitive alternatives first, then the unique attributes that only this company has.</p><span class="etype">Evidence type: framework (<i>Obviously Awesome</i>, 2019).</span></div>
+    <div class="case wrong"><h4>Research</h4><p>In NN/g’s comparison study, when two services were similar, most participants chose based on which site looked more appealing.</p><span class="etype">Evidence type: research (NN/g, 2016), indirect.</span></div>
+  </div>
+  <div class="test"><b>How to do it:</b> search “[service] [city]” and take the top 3 map results. Copy each one’s hero headline, subheadline, and 3 main claims into a table, then add this company. Circle claims everyone makes, and look for true claims nobody makes.</div>
+  <h3>How to fix it</h3>
+  <ul class="rules">
+    <li><b>Drop claims everyone makes</b> from the headline (“quality,” “fair prices”).</li>
+    <li><b>Lead with a true claim competitors don’t make,</b> backed by proof.</li>
+    <li><b>Address the real alternatives,</b> including waiting or DIY.</li>
+  </ul>
+</section>
+
+<!-- P3 -->
+<section class="metric" id="p3" aria-labelledby="p3-h">
+  <div class="mhead"><div><span class="tape">Check 3</span><h2 id="p3-h">Differentiation</h2><p class="q">What’s genuinely different about this company, and can they prove it?</p></div></div>
+  <div class="cols one"><div class="panel"><h3 style="margin-top:0">Spot it</h3>
+    <ul class="checks" data-metric="p3">
+      <li><label><input type="checkbox" data-id="p3a"><span>No specific difference stated (process, specialty, promise, people)</span></label></li>
+      <li><label><input type="checkbox" data-id="p3b"><span>Differences are claimed but not provable</span></label></li>
+      <li><label><input type="checkbox" data-id="p3c"><span>What customers praise most in reviews isn’t on the site</span></label></li>
+    </ul><p class="count" data-count="p3">0 problems found</p>
+    <div class="ask"><b>Ask the owner</b><ul><li>What do you do that most painters around here skip?</li><li>Why do customers say they chose you over the other quotes?</li><li>What can you prove: numbers, warranty terms, certifications?</li></ul></div></div></div>
+  <h3>Why it matters</h3>
+  <p>Dunford’s framework ties each unique attribute to the value it creates for customers and to proof. Copyhackers’ voice-of-customer method adds a practical source: reviews often state the real differentiator in the customer’s own words. In one well-known Copyhackers example for a rehab center, the winning headline was taken almost word for word from a customer review.</p>
+  <div class="ev">
+    <div class="case right"><h4>Practitioner test</h4><p>Copyhackers’ review mining for a rehab center produced the headline “If you think you need rehab, you do,” lifted from a real review. Copyhackers reports its copy changes for that client raised conversions by 26%.</p><span class="etype">Evidence type: practitioner case study (Copyhackers). One business, reported by the firm that did the work.</span></div>
+    <div class="case wrong"><h4>Framework</h4><p>Dunford warns that attributes only matter when tied to value customers care about; a difference nobody values isn’t positioning.</p><span class="etype">Evidence type: framework.</span></div>
+  </div>
+  <h3>How to fix it</h3>
+  <ul class="rules">
+    <li><b>Mine reviews:</b> read 20–30 of their Google reviews and tally what gets praised most.</li>
+    <li><b>Pick 1–3 differences</b> that customers value and the company can prove.</li>
+    <li><b>Record each with its proof</b> in the brief.</li>
+  </ul>
+</section>
+
+<!-- P4 -->
+<section class="metric" id="p4" aria-labelledby="p4-h">
+  <div class="mhead"><div><span class="tape">Check 4</span><h2 id="p4-h">Value proposition</h2><p class="q">Can the company’s reason to choose them be said in one clear sentence?</p></div></div>
+  <div class="cols one"><div class="panel"><h3 style="margin-top:0">Spot it</h3>
+    <ul class="checks" data-metric="p4">
+      <li><label><input type="checkbox" data-id="p4a"><span>No single clear statement of why to choose them</span></label></li>
+      <li><label><input type="checkbox" data-id="p4b"><span>The statement is about the company (“family owned since 1998”), not the customer’s outcome</span></label></li>
+      <li><label><input type="checkbox" data-id="p4c"><span>It isn’t visible at the top of the homepage</span></label></li>
+    </ul><p class="count" data-count="p4">0 problems found</p></div></div>
+  <h3>Why it matters</h3>
+  <p>NN/g’s summary of Microsoft Research data found that the first 10 seconds decide whether visitors stay, and recommends communicating the value proposition within that window. Copyhackers recommends building it from customer language rather than inventing it.</p>
+  <div class="ev">
+    <div class="case right"><h4>Research</h4><p>Visitors who get past the first 10 seconds tend to stay much longer.</p><span class="etype">Evidence type: research (Liu, White, and Dumais, 2010, via NN/g).</span></div>
+    <div class="case wrong"><h4>Evidence gap</h4><p>No reliable public study measures value propositions for painters specifically. Present it as clarity, not a guaranteed lift.</p><span class="etype">Honest note.</span></div>
+  </div>
+  <h3>How to fix it</h3>
+  <div class="formula">For [ideal customer] who want [outcome], we [what we do]. Unlike [alternative], we [differentiator].</div>
+  <ul class="rules">
+    <li><b>Write it in the brief</b> first, then turn it into the hero headline and subheadline.</li>
+    <li><b>Use customer phrases</b> from reviews where possible.</li>
+  </ul>
+</section>
+
+<!-- P5 -->
+<section class="metric" id="p5" aria-labelledby="p5-h">
+  <div class="mhead"><div><span class="tape">Check 5</span><h2 id="p5-h">Proof inventory</h2><p class="q">What proof does the company have, and is it being used?</p></div></div>
+  <div class="cols one"><div class="panel"><h3 style="margin-top:0">Spot it</h3>
+    <ul class="checks" data-metric="p5">
+      <li><label><input type="checkbox" data-id="p5a"><span>Strong proof exists but isn’t on the site (review count, years, homes painted, awards)</span></label></li>
+      <li><label><input type="checkbox" data-id="p5b"><span>Claims made without proof (“best,” “most trusted”)</span></label></li>
+      <li><label><input type="checkbox" data-id="p5c"><span>Testimonials are generic or anonymous</span></label></li>
+    </ul><p class="count" data-count="p5">0 problems found</p>
+    <div class="ask"><b>Ask the owner</b><ul><li>How many homes have you painted? Since when?</li><li>What warranty do you put in writing?</li><li>Any awards, certifications, or memberships you can show?</li></ul></div></div></div>
+  <h3>Why it matters</h3>
+  <p>Northwestern’s Spiegel Research Center found purchase likelihood for a product with five reviews was 270% higher than for one with none, with a bigger effect for higher-priced items. The FTC expects a reasonable basis for objective claims, and its 2024 rule bans fake reviews.</p>
+  <div class="ev">
+    <div class="case right"><h4>Research</h4><p>Reviews raised purchase likelihood sharply in Spiegel’s data, especially early on.</p><span class="etype">Evidence type: research (Spiegel Research Center, 2017; online retail data).</span></div>
+    <div class="case wrong"><h4>Regulation</h4><p>Unsupported objective claims and fake reviews create legal risk under FTC rules.</p><span class="etype">Evidence type: regulation (FTC).</span></div>
+  </div>
+  <h3>How to fix it</h3>
+  <ul class="rules">
+    <li><b>List every piece of proof</b> in the brief, next to the claim it supports.</li>
+    <li><b>Put the strongest proof near the top</b> of key pages.</li>
+    <li><b>Replace unsupported superlatives</b> with numbers.</li>
+  </ul>
+</section>
+
+<!-- P6 -->
+<section class="metric" id="p6" aria-labelledby="p6-h">
+  <div class="mhead"><div><span class="tape">Check 6</span><h2 id="p6-h">Offer and risk reversal</h2><p class="q">Is the first step easy, and does hiring them feel safe?</p></div></div>
+  <div class="cols one"><div class="panel"><h3 style="margin-top:0">Spot it</h3>
+    <ul class="checks" data-metric="p6">
+      <li><label><input type="checkbox" data-id="p6a"><span>No clear, low-risk first step (only “Contact us”)</span></label></li>
+      <li><label><input type="checkbox" data-id="p6b"><span>No guarantee or warranty, or vague terms</span></label></li>
+      <li><label><input type="checkbox" data-id="p6c"><span>Fake urgency (countdown timers, “only 2 spots left” that never changes)</span></label></li>
+    </ul><p class="count" data-count="p6">0 problems found</p>
+    <div class="ask"><b>Ask the owner</b><ul><li>What’s the easiest way for someone to start: a visit, photos by text, a video call?</li><li>What do you guarantee, in writing?</li><li>When does your schedule genuinely fill up?</li></ul></div></div></div>
+  <h3>Why it matters</h3>
+  <p>NN/g found people value companies that are upfront about guarantees. In 37signals’ Highrise headline test, leading with a free, low-risk first step produced 30% more signups. The FTC lists fake countdown timers and false scarcity as deceptive design.</p>
+  <div class="ev">
+    <div class="case right"><h4>Practitioner test</h4><p>Highrise’s winning headline, “30-day Free Trial on All Accounts,” beat the original by 30%.</p><span class="etype">Evidence type: practitioner test (37signals, 2009). Software, not a painter.</span></div>
+    <div class="case wrong"><h4>Regulation</h4><p>The FTC’s 2022 dark patterns report names baseless countdown timers and false scarcity claims.</p><span class="etype">Evidence type: regulation (FTC staff report).</span></div>
+  </div>
+  <h3>How to fix it</h3>
+  <ul class="rules">
+    <li><b>Offer one easy first step</b> that the company genuinely provides.</li>
+    <li><b>State guarantee terms specifically,</b> and only what they honor.</li>
+    <li><b>Use real timing only.</b></li>
+  </ul>
+</section>
+
+<!-- P7 -->
+<section class="metric" id="p7" aria-labelledby="p7-h">
+  <div class="mhead"><div><span class="tape">Check 7</span><h2 id="p7-h">Price position</h2><p class="q">Does the site attract the price level the company actually charges?</p></div></div>
+  <div class="cols one"><div class="panel"><h3 style="margin-top:0">Spot it</h3>
+    <ul class="checks" data-metric="p7">
+      <li><label><input type="checkbox" data-id="p7a"><span>The site signals a different price level than they charge (premium prices with a bargain feel, or “cheapest in town” for a premium company)</span></label></li>
+      <li><label><input type="checkbox" data-id="p7b"><span>No cost guidance at all (ranges or what affects price)</span></label></li>
+      <li><label><input type="checkbox" data-id="p7c"><span>The owner hears “too expensive” often from leads</span></label></li>
+    </ul><p class="count" data-count="p7">0 problems found</p>
+    <div class="ask"><b>Ask the owner</b><ul><li>What’s your average job size?</li><li>How often do you lose bids on price?</li><li>Which leads are a bad fit, and why?</li></ul></div></div></div>
+  <h3>Why it matters</h3>
+  <p>A mismatch wastes estimates: premium companies get bargain hunters, and budget companies scare off their buyers. NN/g found people rule out service companies that hide basic cost information, and accept ranges if the cost factors are clear.</p>
+  <div class="ev">
+    <div class="case right"><h4>Research</h4><p>NN/g recommends giving ranges and cost factors rather than hiding prices behind long forms.</p><span class="etype">Evidence type: research (NN/g, 2016).</span></div>
+    <div class="case wrong"><h4>Evidence gap</h4><p>There’s no reliable public research on price signaling for painting contractors. Use the owner’s own lead data as the evidence.</p><span class="etype">Honest note.</span></div>
+  </div>
+  <h3>How to fix it</h3>
+  <ul class="rules">
+    <li><b>Record the price position</b> in the brief and match tone, photos, and proof to it.</li>
+    <li><b>Explain what drives price,</b> and why their price is worth it (prep, materials, warranty).</li>
+  </ul>
+</section>
+
+<!-- P8 -->
+<section class="metric" id="p8" aria-labelledby="p8-h">
+  <div class="mhead"><div><span class="tape">Check 8</span><h2 id="p8-h">Consistency across channels</h2><p class="q">Does the company say the same thing everywhere customers meet it?</p></div></div>
+  <div class="cols one"><div class="panel"><h3 style="margin-top:0">Spot it</h3>
+    <ul class="checks" data-metric="p8">
+      <li><label><input type="checkbox" data-id="p8a"><span>Different taglines or main claims on the site, Google profile, and social</span></label></li>
+      <li><label><input type="checkbox" data-id="p8b"><span>Different offers or calls to action across channels</span></label></li>
+      <li><label><input type="checkbox" data-id="p8c"><span>Trucks, yard signs, or estimates use old branding or messages</span></label></li>
+    </ul><p class="count" data-count="p8">0 problems found</p>
+    <div class="ask"><b>Ask the owner</b><ul><li>Can you send photos of your trucks, yard signs, and an estimate document?</li></ul></div></div></div>
+  <h3>Why it matters</h3>
+  <p>Consistency is one of Nielsen’s core usability heuristics: people shouldn’t have to wonder whether different words mean the same thing. When the site, profile, and signs tell different stories, the message is weaker and harder to remember.</p>
+  <div class="ev">
+    <div class="case right"><h4>Research</h4><p>The heuristic “consistency and standards” is based on decades of usability practice.</p><span class="etype">Evidence type: established usability heuristic (Nielsen, NN/g).</span></div>
+    <div class="case wrong"><h4>Evidence gap</h4><p>No reliable public study measures cross-channel message consistency for local contractors. Present it as clarity and memorability.</p><span class="etype">Honest note.</span></div>
+  </div>
+  <h3>How to fix it</h3>
+  <ul class="rules">
+    <li><b>Use the brief as the single source</b> for the one-liner, offer, and call to action.</li>
+    <li><b>Update the profile description, social bios, and print materials</b> to match.</li>
+  </ul>
+</section>
+
+<!-- P9 -->
+<section class="metric" id="p9" aria-labelledby="p9-h">
+  <div class="mhead"><div><span class="tape">Check 9</span><h2 id="p9-h">Homepage hero copy</h2><p class="q">Do the headline, subheadline, and button say who, what, where, and what to do next?</p></div></div>
+  <div class="cols one"><div class="panel"><h3 style="margin-top:0">Spot it</h3>
+    <ul class="checks" data-metric="p9">
+      <li><label><input type="checkbox" data-id="p9a"><span>The headline is the company name, “Welcome,” or a slogan that fits any business</span></label></li>
+      <li><label><input type="checkbox" data-id="p9b"><span>The subheadline doesn’t add proof or reduce risk</span></label></li>
+      <li><label><input type="checkbox" data-id="p9c"><span>The value proposition from the brief isn’t reflected in the hero</span></label></li>
+      <li><label><input type="checkbox" data-id="p9d"><span>The button doesn’t say what the visitor gets</span></label></li>
+    </ul><p class="count" data-count="p9">0 problems found</p></div></div>
+  <h3>Why it matters</h3>
+  <p>NN/g’s summary of Microsoft Research data found the first 10 seconds decide whether visitors stay. In 37signals’ Highrise test, the headline that led with what the customer gets beat the original by 30%, while the headline naming the company’s action did worst.</p>
+  <div class="ev">
+    <div class="case right"><h4>Practitioner test</h4><p>Highrise’s “30-day Free Trial on All Accounts” with “Sign-up takes less than 60 seconds” produced 30% more signups than the original.</p><span class="etype">Evidence type: practitioner test (37signals, 2009). Software, not a painter.</span></div>
+    <div class="case wrong"><h4>Practitioner test</h4><p>The original “Start a Highrise Account” performed worst of five, naming what the company wanted rather than what the customer gets.</p><span class="etype">Evidence type: same test.</span></div>
+  </div>
+  <h3>How to fix it</h3>
+  <div class="formula">Headline: [Service] in [area] + [outcome or difference] · Subheadline: proof or risk reversal · Button: what they get</div>
+  <ul class="rules">
+    <li><b>Turn the brief’s value proposition</b> into the headline and subheadline.</li>
+    <li><b>Button:</b> first person and specific, like “Get my free estimate.”</li>
+  </ul>
+</section>
+
+<!-- P10 -->
+<section class="metric" id="p10" aria-labelledby="p10-h">
+  <div class="mhead"><div><span class="tape">Check 10</span><h2 id="p10-h">Message flow</h2><p class="q">Does the homepage move from the homeowner’s problem to a plan to success?</p></div></div>
+  <div class="cols one"><div class="panel"><h3 style="margin-top:0">Spot it</h3>
+    <ul class="checks" data-metric="p10">
+      <li><label><input type="checkbox" data-id="p10a"><span>It opens with company history instead of the homeowner’s problem or goal</span></label></li>
+      <li><label><input type="checkbox" data-id="p10b"><span>No simple plan showing how working together goes</span></label></li>
+      <li><label><input type="checkbox" data-id="p10c"><span>No picture of success, or what’s at stake if they wait</span></label></li>
+      <li><label><input type="checkbox" data-id="p10d"><span>Sections feel random rather than leading to the call to action</span></label></li>
+    </ul><p class="count" data-count="p10">0 problems found</p></div></div>
+  <h3>Why it matters</h3>
+  <p>StoryBrand (Donald Miller) frames the customer as the hero with a problem, the business as the guide with a plan, and the page as leading to a call to action and a picture of success. It’s a widely used framework, not research, but it lines up with what research shows: people decide fast and respond to content about their own situation.</p>
+  <div class="ev">
+    <div class="case right"><h4>Framework</h4><p>StoryBrand’s sequence: character, problem, guide, plan, call to action, avoid failure, success.</p><span class="etype">Evidence type: framework (<i>Building a StoryBrand</i>, 2017).</span></div>
+    <div class="case wrong"><h4>Evidence gap</h4><p>StoryBrand’s published results are its own case studies, not independent research. Don’t cite it as proven.</p><span class="etype">Honest note.</span></div>
+  </div>
+  <h3>How to fix it</h3>
+  <div class="formula">Problem → Guide (empathy + authority) → 3-step plan → Call to action → Success</div>
+  <ul class="rules">
+    <li><b>Order the homepage sections</b> to follow that flow, ending with the call to action.</li>
+    <li><b>Move history to the About page.</b></li>
+  </ul>
+</section>
+
+<!-- P11 -->
+<section class="metric" id="p11" aria-labelledby="p11-h">
+  <div class="mhead"><div><span class="tape">Check 11</span><h2 id="p11-h">Customer language</h2><p class="q">Does the copy use the words customers actually use in their reviews?</p></div></div>
+  <div class="cols one"><div class="panel"><h3 style="margin-top:0">Spot it</h3>
+    <ul class="checks" data-metric="p11">
+      <li><label><input type="checkbox" data-id="p11a"><span>The copy uses industry or marketing words customers never use (“solutions,” “premier finishes”)</span></label></li>
+      <li><label><input type="checkbox" data-id="p11b"><span>Repeated phrases from reviews (what customers worried about, what they loved) don’t appear on the site</span></label></li>
+      <li><label><input type="checkbox" data-id="p11c"><span>The copy doesn’t reflect the emotions customers describe (stress, embarrassment, relief)</span></label></li>
+    </ul><p class="count" data-count="p11">0 problems found</p></div></div>
+  <h3>Why it matters</h3>
+  <p>Copyhackers’ voice-of-customer method treats research as the biggest part of copywriting: mine reviews for the exact words people use about their problems and results, then build copy from them. Their rehab-center headline, taken almost word for word from a customer review, is the classic example.</p>
+  <div class="ev">
+    <div class="case right"><h4>Practitioner test</h4><p>Copyhackers reports a 26% conversion lift from its copy work for a rehab center, where the headline came from review mining.</p><span class="etype">Evidence type: practitioner case study (Copyhackers).</span></div>
+    <div class="case wrong"><h4>Research</h4><p>In Morkes and Nielsen’s study, promotional “marketese” scored lowest; plain, objective language improved measured usability by 27%.</p><span class="etype">Evidence type: research (Morkes and Nielsen, 1997).</span></div>
+  </div>
+  <h3>How to fix it</h3>
+  <ul class="rules">
+    <li><b>Mine 20–30 reviews</b> (theirs and competitors’) and copy recurring phrases into the brief.</li>
+    <li><b>Use those phrases</b> in headlines, objection answers, and service pages.</li>
+    <li><b>Never quote a review as if it’s the company’s claim</b> unless it’s attributed.</li>
+  </ul>
+</section>
+
+<!-- P12 -->
+<section class="metric" id="p12" aria-labelledby="p12-h">
+  <div class="mhead"><div><span class="tape">Check 12</span><h2 id="p12-h">Benefits over features</h2><p class="q">Does every feature come with what it means for the homeowner?</p></div></div>
+  <div class="cols one"><div class="panel"><h3 style="margin-top:0">Spot it</h3>
+    <ul class="checks" data-metric="p12">
+      <li><label><input type="checkbox" data-id="p12a"><span>Features listed without saying why they matter (“premium paints,” “10 years experience”)</span></label></li>
+      <li><label><input type="checkbox" data-id="p12b"><span>No outcomes homeowners care about (no mess, on time, lasts longer)</span></label></li>
+    </ul><p class="count" data-count="p12">0 problems found</p></div></div>
+  <h3>Why it matters</h3>
+  <p>NN/g estimates people read at most about 28% of the words on an average page, so the benefit has to be stated outright. Highrise’s winning subheadline turned a feature into a benefit: “Sign-up takes less than 60 seconds.”</p>
+  <div class="ev">
+    <div class="case right"><h4>Research</h4><p>Nielsen’s analysis found people read only a fraction of page text, so meaning must be explicit.</p><span class="etype">Evidence type: research (Nielsen, 2008).</span></div>
+    <div class="case wrong"><h4>Evidence gap</h4><p>No reliable public study compares benefit-led and feature-led copy for painters. Present it as clarity.</p><span class="etype">Honest note.</span></div>
+  </div>
+  <h3>How to fix it</h3>
+  <div class="formula">[Benefit], because [feature as proof]</div>
+  <ul class="rules"><li><b>Run the “so what?” test</b> on every claim until it reaches something the homeowner feels.</li></ul>
+</section>
+
+<!-- P13 -->
+<section class="metric" id="p13" aria-labelledby="p13-h">
+  <div class="mhead"><div><span class="tape">Check 13</span><h2 id="p13-h">Specificity and proof</h2><p class="q">Are claims concrete, and is proof right next to them?</p></div></div>
+  <div class="cols one"><div class="panel"><h3 style="margin-top:0">Spot it</h3>
+    <ul class="checks" data-metric="p13">
+      <li><label><input type="checkbox" data-id="p13a"><span>Vague superlatives (“the best,” “unmatched,” “premier”)</span></label></li>
+      <li><label><input type="checkbox" data-id="p13b"><span>No numbers, places, or examples</span></label></li>
+      <li><label><input type="checkbox" data-id="p13c"><span>Claims sit far from the reviews or photos that prove them</span></label></li>
+    </ul><p class="count" data-count="p13">0 problems found</p></div></div>
+  <h3>Why it matters</h3>
+  <p>Objective, specific writing outperformed promotional writing in Morkes and Nielsen’s study, because promotional claims make people stop and question them. The FTC also expects a reasonable basis for objective advertising claims.</p>
+  <div class="ev">
+    <div class="case right"><h4>Research</h4><p>The objective version of the test site improved measured usability by 27% over the promotional one.</p><span class="etype">Evidence type: research (Morkes and Nielsen, 1997).</span></div>
+    <div class="case wrong"><h4>Regulation</h4><p>Objective claims need substantiation under the FTC’s advertising policy.</p><span class="etype">Evidence type: regulation (FTC, 1983).</span></div>
+  </div>
+  <h3>How to fix it</h3>
+  <ul class="rules">
+    <li><b>Swap superlatives for facts</b> from the brief’s proof list.</li>
+    <li><b>Place proof beside each claim:</b> a review next to “spotless cleanup.”</li>
+  </ul>
+</section>
+
+<!-- P14 -->
+<section class="metric" id="p14" aria-labelledby="p14-h">
+  <div class="mhead"><div><span class="tape">Check 14</span><h2 id="p14-h">Objection handling</h2><p class="q">Does the copy answer the worries that stop homeowners from calling?</p></div></div>
+  <div class="cols one"><div class="panel"><h3 style="margin-top:0">Spot it</h3>
+    <ul class="checks" data-metric="p14">
+      <li><label><input type="checkbox" data-id="p14a"><span>Nothing about mess, protection, and cleanup</span></label></li>
+      <li><label><input type="checkbox" data-id="p14b"><span>Nothing about timing, who’s in the home, or safety (kids, pets, fumes)</span></label></li>
+      <li><label><input type="checkbox" data-id="p14c"><span>Nothing about cost factors or payment terms</span></label></li>
+    </ul><p class="count" data-count="p14">0 problems found</p>
+    <div class="ask"><b>Ask the owner</b><ul><li>What do people worry about most on the first call?</li><li>Why do people say no after an estimate?</li></ul></div></div></div>
+  <h3>Why it matters</h3>
+  <p>NN/g found people hiring in-home services want to know whom they’ll deal with and how the service works, and that sites hiding basic information were ruled out quickly. Copyhackers’ method treats objections from reviews and sales calls as core copy material.</p>
+  <div class="ev">
+    <div class="case right"><h4>Research</h4><p>Participants valued practical, upfront information and visited FAQ pages to find it.</p><span class="etype">Evidence type: research (NN/g, 2016).</span></div>
+    <div class="case wrong"><h4>Research</h4><p>A participant ruled out a cleaning company in 35 seconds because it didn’t state its rates.</p><span class="etype">Evidence type: research (NN/g, 2016).</span></div>
+  </div>
+  <h3>How to fix it</h3>
+  <ul class="rules">
+    <li><b>List objections and answers</b> in the brief.</li>
+    <li><b>Answer them in a “What to expect” section</b> and on service pages, in short, specific lines.</li>
+  </ul>
+</section>
+
+<!-- P15 -->
+<section class="metric" id="p15" aria-labelledby="p15-h">
+  <div class="mhead"><div><span class="tape">Check 15</span><h2 id="p15-h">Service page copy structure</h2><p class="q">Does each service page follow a clear, scannable structure?</p></div></div>
+  <div class="cols one"><div class="panel"><h3 style="margin-top:0">Spot it</h3>
+    <ul class="checks" data-metric="p15">
+      <li><label><input type="checkbox" data-id="p15a"><span>A wall of text with no subheadings</span></label></li>
+      <li><label><input type="checkbox" data-id="p15b"><span>Missing key parts: what’s included, process, timeline, proof, FAQs, call to action</span></label></li>
+      <li><label><input type="checkbox" data-id="p15c"><span>The same text reused across service pages</span></label></li>
+    </ul><p class="count" data-count="p15">0 problems found</p></div></div>
+  <h3>Why it matters</h3>
+  <p>In Morkes and Nielsen’s study, a scannable version of a site scored 47% higher in measured usability, and combining concise, scannable, and objective writing scored 124% higher. Google’s helpful-content guidance also favors pages that fully answer the visitor’s question.</p>
+  <div class="ev">
+    <div class="case right"><h4>Research</h4><p>Scannable layout alone improved measured usability by 47%.</p><span class="etype">Evidence type: research (Morkes and Nielsen, 1997).</span></div>
+    <div class="case wrong"><h4>Research</h4><p>79% of test users scanned pages; only 16% read word by word.</p><span class="etype">Evidence type: same study.</span></div>
+  </div>
+  <h3>How to fix it</h3>
+  <div class="formula">Headline → Outcome + proof → What’s included → Process → Photos → FAQs → Reviews → Call to action</div>
+  <ul class="rules"><li><b>Write each page from scratch,</b> with subheadings and short paragraphs.</li></ul>
+</section>
+
+<!-- P16 -->
+<section class="metric" id="p16" aria-labelledby="p16-h">
+  <div class="mhead"><div><span class="tape">Check 16</span><h2 id="p16-h">About page story</h2><p class="q">Does the About page introduce real people and a real story?</p></div></div>
+  <div class="cols one"><div class="panel"><h3 style="margin-top:0">Spot it</h3>
+    <ul class="checks" data-metric="p16">
+      <li><label><input type="checkbox" data-id="p16a"><span>Generic statements (“We are committed to excellence”)</span></label></li>
+      <li><label><input type="checkbox" data-id="p16b"><span>No owner name or photo; no crew</span></label></li>
+      <li><label><input type="checkbox" data-id="p16c"><span>No story of why they started or what they care about</span></label></li>
+    </ul><p class="count" data-count="p16">0 problems found</p>
+    <div class="ask"><b>Ask the owner</b><ul><li>Why did you start the company?</li><li>What’s something you do on every job that customers don’t see?</li></ul></div></div></div>
+  <h3>Why it matters</h3>
+  <p>NN/g found that in high-trust industries where you invite strangers into your home, people want a better understanding of whom they’ll do business with, and they preferred services showing the actual people doing the work.</p>
+  <div class="ev">
+    <div class="case right"><h4>Research</h4><p>Participants preferred services whose photos showed real staff.</p><span class="etype">Evidence type: research (NN/g, 2016).</span></div>
+    <div class="case wrong"><h4>Research</h4><p>Generic photos were more likely to be dismissed as filler.</p><span class="etype">Evidence type: same study.</span></div>
+  </div>
+  <h3>How to fix it</h3>
+  <ul class="rules"><li><b>Owner name, photo, short story,</b> crew photos, and how long they’ve served the area. Keep the customer as the hero; the company is the guide.</li></ul>
+</section>
+
+<!-- P17 -->
+<section class="metric" id="p17" aria-labelledby="p17-h">
+  <div class="mhead"><div><span class="tape">Check 17</span><h2 id="p17-h">Calls to action and microcopy</h2><p class="q">Do buttons, form labels, and confirmation messages make the next step clear and easy?</p></div></div>
+  <div class="cols one"><div class="panel"><h3 style="margin-top:0">Spot it</h3>
+    <ul class="checks" data-metric="p17">
+      <li><label><input type="checkbox" data-id="p17a"><span>Buttons say “Submit,” “Send,” or “Learn more”</span></label></li>
+      <li><label><input type="checkbox" data-id="p17b"><span>The same action is named differently in different places</span></label></li>
+      <li><label><input type="checkbox" data-id="p17c"><span>Form labels are unclear, or optional fields aren’t marked</span></label></li>
+      <li><label><input type="checkbox" data-id="p17d"><span>No line on what happens next after the form</span></label></li>
+    </ul><p class="count" data-count="p17">0 problems found</p></div></div>
+  <h3>Why it matters</h3>
+  <p>On an Unbounce page, changing “Start your free 30 day trial” to “Start my free 30 day trial” raised click-through by 90%. Baymard’s form research found split name fields confused many users. Nielsen’s consistency heuristic says one action should have one name.</p>
+  <div class="ev">
+    <div class="case right"><h4>Practitioner test</h4><p>The first-person button wording won by 90% in a three-week test.</p><span class="etype">Evidence type: practitioner test (Michael Aagaard, Unbounce). One page; results vary.</span></div>
+    <div class="case wrong"><h4>Research</h4><p>42% of Baymard’s test participants typed their full name into a “First Name” field at least once.</p><span class="etype">Evidence type: research (Baymard Institute).</span></div>
+  </div>
+  <h3>How to fix it</h3>
+  <ul class="rules">
+    <li><b>Buttons:</b> action plus what they get, in first person, the same everywhere.</li>
+    <li><b>Labels</b> above fields; mark optional ones.</li>
+    <li><b>Under the button:</b> what happens next and how fast, if true.</li>
+  </ul>
+</section>
+
+<!-- P18 -->
+<section class="metric" id="p18" aria-labelledby="p18-h">
+  <div class="mhead"><div><span class="tape">Check 18</span><h2 id="p18-h">Readability</h2><p class="q">Is the copy easy for any homeowner to read quickly?</p></div></div>
+  <div class="cols one"><div class="panel"><h3 style="margin-top:0">Spot it</h3>
+    <ul class="checks" data-metric="p18">
+      <li><label><input type="checkbox" data-id="p18a"><span>Long sentences (often over 25 words) and long paragraphs</span></label></li>
+      <li><label><input type="checkbox" data-id="p18b"><span>Jargon or fancy words where plain ones work</span></label></li>
+      <li><label><input type="checkbox" data-id="p18c"><span>Passive, roundabout phrasing (“painting services are provided”)</span></label></li>
+    </ul><p class="count" data-count="p18">0 problems found</p></div></div>
+  <h3>Why it matters</h3>
+  <p>NN/g’s research on plain language finds that even highly educated readers prefer clear, simple text because it’s faster to read. US plain-language guidance (plainlanguage.gov) recommends short sentences, common words, and active voice.</p>
+  <div class="ev">
+    <div class="case right"><h4>Research</h4><p>NN/g found plain language helps all readers, including experts, scan and understand faster.</p><span class="etype">Evidence type: research (NN/g, “Plain Language Is for Everyone, Even Experts”).</span></div>
+    <div class="case wrong"><h4>Evidence gap</h4><p>Readability scores are rough guides, not proof. Use them to spot problems, not as targets.</p><span class="etype">Honest note.</span></div>
+  </div>
+  <h3>How to fix it</h3>
+  <ul class="rules">
+    <li><b>Short sentences,</b> common words, active voice.</li>
+    <li><b>Check with a free readability tool</b> (such as Hemingway Editor) and fix the worst sentences.</li>
+  </ul>
+</section>
+
+<!-- P19 -->
+<section class="metric" id="p19" aria-labelledby="p19-h">
+  <div class="mhead"><div><span class="tape">Check 19</span><h2 id="p19-h">Testimonial selection</h2><p class="q">Are the right reviews shown in the right places?</p></div></div>
+  <div class="cols one"><div class="panel"><h3 style="margin-top:0">Spot it</h3>
+    <ul class="checks" data-metric="p19">
+      <li><label><input type="checkbox" data-id="p19a"><span>Testimonials are vague (“Great job!”) or anonymous</span></label></li>
+      <li><label><input type="checkbox" data-id="p19b"><span>Reviews don’t match the page (exterior reviews on the cabinet page)</span></label></li>
+      <li><label><input type="checkbox" data-id="p19c"><span>No review answers a key objection (mess, timing, price)</span></label></li>
+      <li><label><input type="checkbox" data-id="p19d"><span>No link to the full reviews on Google</span></label></li>
+    </ul><p class="count" data-count="p19">0 problems found</p></div></div>
+  <h3>Why it matters</h3>
+  <p>Spiegel Research Center found purchase likelihood peaked at ratings of 4.0–4.7 rather than a perfect 5.0, which suggests people distrust reviews that look too perfect. NN/g found people trust external review sites more than testimonials on a company’s own site, so linking to the source helps.</p>
+  <div class="ev">
+    <div class="case right"><h4>Research</h4><p>Purchase likelihood peaked at 4.0–4.7 stars in Spiegel’s data.</p><span class="etype">Evidence type: research (Spiegel Research Center, 2017).</span></div>
+    <div class="case wrong"><h4>Research</h4><p>On-site testimonials alone were viewed with more skepticism than external reviews.</p><span class="etype">Evidence type: research (NN/g, 2016).</span></div>
+  </div>
+  <h3>How to fix it</h3>
+  <ul class="rules">
+    <li><b>Choose specific reviews</b> with a name, area, service, and detail.</li>
+    <li><b>Match reviews to pages</b> and objections.</li>
+    <li><b>Link to the Google reviews.</b> Never edit a review’s meaning.</li>
+  </ul>
+</section>
+
+<!-- P20 -->
+<section class="metric" id="p20" aria-labelledby="p20-h">
+  <div class="mhead"><div><span class="tape">Check 20</span><h2 id="p20-h">Google profile copy</h2><p class="q">Do the profile description and updates carry the same message, within Google’s rules?</p></div></div>
+  <div class="cols one"><div class="panel"><h3 style="margin-top:0">Spot it</h3>
+    <ul class="checks" data-metric="p20">
+      <li><label><input type="checkbox" data-id="p20a"><span>The description is missing, generic, or off-message</span></label></li>
+      <li><label><input type="checkbox" data-id="p20b"><span>The description includes links, promotions, or prices</span></label></li>
+      <li><label><input type="checkbox" data-id="p20c"><span>Updates are rare or don’t reflect the brief’s message</span></label></li>
+    </ul><p class="count" data-count="p20">0 problems found</p></div></div>
+  <h3>Why it matters</h3>
+  <p>For local searches, the profile is often the first thing a homeowner reads. Google’s guidelines say the business description should describe the business, without links or a focus on promotions and prices.</p>
+  <div class="ev">
+    <div class="case right"><h4>Evidence</h4><p>Google’s guidance asks for an accurate description of the business and its services.</p><span class="etype">Evidence type: official Google Business Profile guidelines.</span></div>
+    <div class="case wrong"><h4>Evidence gap</h4><p>Google doesn’t say the description affects ranking. Treat it as copy for customers.</p><span class="etype">Honest note.</span></div>
+  </div>
+  <h3>How to fix it</h3>
+  <ul class="rules">
+    <li><b>Rewrite the description</b> from the brief: who, what, where, difference, proof.</li>
+    <li><b>Use updates</b> for recent projects and real offers, in the same voice.</li>
+  </ul>
+</section>
+
+<section class="metric" id="sources" aria-labelledby="src-h">
+  <h2 id="src-h" style="font-size:1.15rem">Sources</h2>
+  <ul class="sources">
+    <li>April Dunford, <i>Obviously Awesome</i> (2019). Framework.</li>
+    <li>Copyhackers (Joanna Wiebe), voice-of-customer research and review mining. <a href="https://copyhackers.com/" target="_blank" rel="noopener">copyhackers.com</a></li>
+    <li>Nielsen Norman Group, “Trustworthiness in Web Design: 4 Credibility Factors” (2016). <a href="https://www.nngroup.com/articles/trustworthy-design/" target="_blank" rel="noopener">nngroup.com</a></li>
+    <li>Nielsen Norman Group, “How Long Do Users Stay on Web Pages?” (2011), summarizing Liu, White, and Dumais (2010).</li>
+    <li>Nielsen, “10 Usability Heuristics for User Interface Design,” NN/g.</li>
+    <li>Spiegel Research Center, Northwestern University, “How Online Reviews Influence Sales” (2017).</li>
+    <li>37signals, “Writing Decisions: Headline tests on the Highrise signup page” (2009).</li>
+    <li>FTC: Policy Statement Regarding Advertising Substantiation (1983); “Bringing Dark Patterns to Light” (2022); Consumer Reviews and Testimonials rule (2024).</li>
+    <li>Donald Miller, <i>Building a StoryBrand</i> (2017). Framework.</li>
+    <li>Morkes and Nielsen, “Concise, SCANNABLE, and Objective: How to Write for the Web” (1997); Nielsen, “How Little Do Users Read?” (2008). <a href="https://www.nngroup.com/articles/concise-scannable-and-objective-how-to-write-for-the-web/" target="_blank" rel="noopener">nngroup.com</a></li>
+    <li>Nielsen Norman Group, “Plain Language Is for Everyone, Even Experts.” <a href="https://www.nngroup.com/articles/plain-language-experts/" target="_blank" rel="noopener">nngroup.com</a></li>
+    <li>plainlanguage.gov, Federal Plain Language Guidelines.</li>
+    <li>Unbounce, Michael Aagaard, “How to Design Call to Action Buttons That Convert.”</li>
+    <li>Baymard Institute, checkout form field research.</li>
+    <li>Google, “Guidelines for representing your business on Google.” <a href="https://support.google.com/business/answer/3038177" target="_blank" rel="noopener">support.google.com</a></li>
+  </ul>
+</section>
+</div>
+
+<script>
+(function(){
+  var QS=new URLSearchParams(location.search),QSITE=QS.get("site")||"",QNAME=QS.get("name")||"",SITEKEY="";
+  try{if(QSITE)SITEKEY=new URL(QSITE).hostname.replace(/^www\./,"");}catch(e){}
+  var KEY="messaging-audit-v1"+(SITEKEY?":"+SITEKEY:"");
+  var METRICS=["p1","p2","p3","p4","p5","p6","p7","p8","p9","p10","p11","p12","p13","p14","p15","p16","p17","p18","p19","p20"];
+  var TITLES={p1:"Ideal customer",p2:"Competitor messaging",p3:"Differentiation",p4:"Value proposition",p5:"Proof inventory",p6:"Offer and risk reversal",p7:"Price position",p8:"Consistency across channels",p9:"Homepage hero copy",p10:"Message flow",p11:"Customer language",p12:"Benefits over features",p13:"Specificity and proof",p14:"Objection handling",p15:"Service page copy structure",p16:"About page story",p17:"Calls to action and microcopy",p18:"Readability",p19:"Testimonial selection",p20:"Google profile copy"};
+  var META={p1:["Positioning","Owner input"],p2:["Positioning","Outside"],p3:["Positioning","Owner input"],p4:["Positioning","Outside"],p5:["Positioning","Owner input"],p6:["Positioning","Owner input"],p7:["Positioning","Owner input"],p8:["Positioning","Owner input"],p9:["Copy","Outside"],p10:["Copy","Outside"],p11:["Copy","Outside"],p12:["Copy","Outside"],p13:["Copy","Outside"],p14:["Copy","Owner input"],p15:["Copy","Outside"],p16:["Copy","Owner input"],p17:["Copy","Outside"],p18:["Copy","Outside"],p19:["Copy","Outside"],p20:["Copy","Outside"]};
+  var TESTS={
+    p1:"Compare the homepage hero, gallery, and featured reviews with the jobs the owner says they want more of.",
+    p3:"Read 20–30 of their Google reviews and tally what customers praise most. Check whether the site says it.",
+    p4:"Look at the homepage for 5 seconds, look away, and try to say why you’d choose them in one sentence.",
+    p5:"List every claim on the homepage, then list the proof that exists (reviews, numbers, awards). Match them up.",
+    p6:"Find the first step the site asks for. Search the site for “warranty” and “guarantee.” Reload any countdown timers.",
+    p7:"Compare the site’s look, photos, and words with the owner’s average job size and the leads they complain about.",
+    p8:"Open the site, Google profile, and Facebook side by side and compare taglines, claims, offers, and calls to action.",
+    p9:"Read only the hero. Can you say who it’s for, what they do, where, and what to do next? Compare it with the brief’s value proposition.",
+    p10:"List the homepage sections in order and label each: problem, guide, plan, call to action, success, or other.",
+    p11:"Open 20–30 Google reviews and note repeated phrases. Search the site (Ctrl+F) for each one.",
+    p12:"Pick 3 claims and ask “so what?” If the page doesn’t answer, it’s a feature without a benefit.",
+    p13:"Highlight every claim on the homepage and ask, “where’s the proof?”",
+    p14:"List the top 5 homeowner worries and see which the site answers.",
+    p15:"Open each main service page and compare its sections with the structure under How to fix it.",
+    p16:"Open the About page. Are there real names, photos, and a story, or slogans and stock images?",
+    p17:"Write down every button’s text on the homepage, a service page, and the contact page, and read the form labels.",
+    p18:"Paste a service page’s text into a free readability tool and look at the longest sentences.",
+    p19:"Check which reviews appear on each page and whether they match its service and answer an objection.",
+    p20:"Read the Google profile description and the last few updates. Compare with the brief."
+  };
+  var FIX={
+    p1a:"Name the best-fit customer and show them in the hero and gallery",p1b:"Feature photos and reviews of the jobs they want more of",p1c:"Define the best-fit customer in the brief, using their best recent jobs",
+    p2a:"Drop claims every competitor makes from the headline",p2b:"Lead with a true claim competitors don’t make, with proof",p2c:"Address the real alternatives, including waiting or DIY",
+    p3a:"Pick 1–3 specific, valued differences",p3b:"Back each difference with proof",p3c:"Use what customers praise most in reviews",
+    p4a:"Write a one-sentence value proposition",p4b:"Rewrite it around the customer’s outcome",p4c:"Put it at the top of the homepage",
+    p5a:"Show existing proof near the top of key pages",p5b:"Replace unsupported claims with numbers",p5c:"Use specific, named testimonials",
+    p6a:"Offer one easy, low-risk first step",p6b:"State specific guarantee terms",p6c:"Remove fake urgency",
+    p7a:"Match tone, photos, and proof to the real price position",p7b:"Explain what drives price and why it’s worth it",p7c:"Qualify leads with cost guidance before they call",
+    p8a:"Use one tagline and main claim everywhere",p8b:"Use one offer and call to action across channels",p8c:"Update print materials to match",
+    p9a:"Write a headline with service, area, and outcome",p9b:"Use the subheadline for proof or risk reversal",p9c:"Bring the value proposition into the hero",p9d:"Make the button say what they get",
+    p10a:"Open with the homeowner’s problem or goal",p10b:"Add a simple 3-step plan",p10c:"Show success and what’s at stake",p10d:"Order sections to lead to the call to action",
+    p11a:"Replace industry words with customers’ words",p11b:"Use repeated review phrases in the copy",p11c:"Reflect the emotions customers describe",
+    p12a:"Add the benefit to every feature",p12b:"Name the outcomes homeowners care about",
+    p13a:"Replace superlatives with facts",p13b:"Add numbers, places, and examples",p13c:"Place proof next to each claim",
+    p14a:"Answer mess, protection, and cleanup",p14b:"Answer timing, crew, and safety",p14c:"Explain cost factors and payment terms",
+    p15a:"Add subheadings and short paragraphs",p15b:"Use the full service page structure",p15c:"Write each service page from scratch",
+    p16a:"Replace slogans with specifics",p16b:"Show the owner and crew by name and photo",p16c:"Tell the short company story",
+    p17a:"Use specific, first-person button text",p17b:"Use one name for the main action",p17c:"Clarify labels and mark optional fields",p17d:"Say what happens next after the form",
+    p18a:"Shorten sentences and paragraphs",p18b:"Use plain words",p18c:"Use active voice",
+    p19a:"Choose specific, named reviews",p19b:"Match reviews to each page",p19c:"Use reviews that answer objections",p19d:"Link to the Google reviews",
+    p20a:"Rewrite the profile description from the brief",p20b:"Remove links and promotions from the description",p20c:"Post regular updates in the same voice"
+  };
+  var BF=["b_customer","b_alts","b_problem","b_solution","b_result","b_value","b_d1","b_p1","b_d2","b_p2","b_d3","b_p3","b_price","b_offer","b_objections","b_voc","b_cta"];
+  var state={f:{},c:{},ui:{quick:false,access:"all",cat:"all"}};
+  function load(){try{var s=localStorage.getItem(KEY);if(s){var p=JSON.parse(s);if(p&&typeof p==="object")state={f:p.f||{},c:p.c||{},ui:p.ui||{quick:false,access:"all",cat:"all"}};}}catch(e){}}
+  function save(){try{localStorage.setItem(KEY,JSON.stringify(state));}catch(e){}}
+  function visible(m){var a=state.ui.access,c=state.ui.cat;return (a==="all"||META[m][1]===a)&&(c==="all"||META[m][0]===c);}
+  var fields=["company","url","city"].concat(BF);
+  function v(id){return (state.f[id]||"").trim();}
+  function applyView(){
+    document.body.classList.toggle("quick",!!state.ui.quick);
+    document.getElementById("quickBtn").setAttribute("aria-pressed",state.ui.quick?"true":"false");
+    METRICS.forEach(function(m){var s=document.getElementById(m);if(s)s.classList.toggle("hide",!visible(m));});
+    document.getElementById("fAccess").value=state.ui.access;document.getElementById("fCat").value=state.ui.cat;
+  }
+  function render(){
+    var total=0,withIssues=0;
+    METRICS.forEach(function(m){var n=document.querySelectorAll('.checks[data-metric="'+m+'"] input:checked').length;total+=n;if(n)withIssues++;document.querySelector('[data-count="'+m+'"]').textContent=n+(n===1?" problem found":" problems found");});
+    ["pcount","tbP"].forEach(function(id){document.getElementById(id).textContent=total;});
+    ["fcount","tbF"].forEach(function(id){document.getElementById(id).textContent=withIssues;});
+    var co=v("company")||"[Company]",url=v("url"),city=v("city");
+    var out=["MESSAGING AUDIT: "+co+(url?" ("+url+")":"")+(city?" · "+city:""),""],any=false;
+    METRICS.forEach(function(m,i){var boxes=document.querySelectorAll('.checks[data-metric="'+m+'"] input:checked');if(!boxes.length)return;any=true;out.push((i+1)+". "+TITLES[m].toUpperCase()+" ["+META[m][0]+"]");boxes.forEach(function(c){out.push("   - Found: "+c.parentNode.querySelector("span").textContent);if(FIX[c.dataset.id])out.push("     Fix: "+FIX[c.dataset.id]);});out.push("");});
+    if(!any)out.push("No problems ticked yet.");
+    document.getElementById("report").textContent=out.join("\n");
+    var b=[],dash="\u2014";
+    b.push("MESSAGING BRIEF: "+co+(city?" ("+city+")":""));b.push("");
+    var one=(v("b_problem")||v("b_solution")||v("b_result"))?("We help homeowners "+(v("b_problem")?"dealing with "+v("b_problem")+" ":"")+(v("b_solution")?"through "+v("b_solution")+" ":"")+(v("b_result")?"so they get "+v("b_result"):"")).trim()+".":"[problem, solution, result]";
+    b.push("ONE-LINER");b.push(one);b.push("");
+    b.push("VALUE PROPOSITION");b.push(v("b_value")||"[one sentence]");b.push("");
+    b.push("IDEAL CUSTOMER");b.push(v("b_customer")||"[who they serve best]");b.push("");
+    b.push("ALTERNATIVES CUSTOMERS CONSIDER");b.push(v("b_alts")||"[competitors, DIY, waiting]");b.push("");
+    b.push("DIFFERENTIATORS AND PROOF");
+    var dn=0;[1,2,3].forEach(function(i){var d=v("b_d"+i),p=v("b_p"+i);if(d){dn++;b.push(dn+". "+d+(p?" "+dash+" proof: "+p:" "+dash+" proof: [needed]"));}});
+    if(!dn)b.push("[1–3 differences, each with proof]");b.push("");
+    b.push("PRICE POSITION");b.push(v("b_price")||"[premium / mid-market / budget]");b.push("");
+    b.push("OFFER AND RISK REVERSAL");b.push(v("b_offer")||"[first step, guarantee]");b.push("");
+    b.push("OBJECTIONS AND ANSWERS");b.push(v("b_objections")||"[worry → answer]");b.push("");
+    b.push("CUSTOMER PHRASES TO REUSE");b.push(v("b_voc")||"[phrases from reviews]");b.push("");
+    b.push("MAIN CALL TO ACTION");b.push(v("b_cta")||"[one action, same words everywhere]");
+    document.getElementById("brief").textContent=b.join("\n");
+    save();renderTOC();
+  }
+  function renderTOC(){
+    var list=document.getElementById("tocList");list.innerHTML="";
+    function item(t,num,title,meta){var li=document.createElement("li"),a=document.createElement("a");a.href="#"+t;a.dataset.target=t;var left=document.createElement("span");if(num){var n=document.createElement("span");n.className="num";n.textContent=num;left.appendChild(n);}left.appendChild(document.createTextNode(title));a.appendChild(left);if(meta){var mm=document.createElement("span");mm.className="meta";mm.textContent=meta;a.appendChild(mm);}li.appendChild(a);list.appendChild(li);}
+    item("setup","","This audit","");item("evidence","","How evidence is labeled","");
+    var shown=0;METRICS.forEach(function(m,i){if(!visible(m))return;shown++;var n=document.querySelectorAll('.checks[data-metric="'+m+'"] input:checked').length;item(m,"Check "+(i+1)+" · "+META[m][0]+" · "+META[m][1],TITLES[m],n?n+" found":"");});
+    if(!shown){var li=document.createElement("li");li.className="notes-empty";li.style.padding=".5rem .6rem";li.textContent="No checks match these filters.";list.appendChild(li);}
+    item("sources","","Sources","");
+  }
+  var overlay=document.getElementById("overlay"),lastFocus=null;
+  var triggers={tocDrawer:["openToc"],toolDrawer:["openFindings","openBrief"]};
+  function setExpanded(id,val){(triggers[id]||[]).forEach(function(t){document.getElementById(t).setAttribute("aria-expanded",val?"true":"false");});}
+  function showTab(tab){document.querySelectorAll(".tabs [role=tab]").forEach(function(b){var on=b.dataset.tab===tab;b.setAttribute("aria-selected",on?"true":"false");document.getElementById(b.dataset.tab).hidden=!on;});}
+  function closeAll(restore){document.querySelectorAll(".drawer.open").forEach(function(d){d.classList.remove("open");d.setAttribute("aria-hidden","true");setExpanded(d.id,false);});overlay.hidden=true;document.body.classList.remove("locked");if(restore!==false&&lastFocus&&lastFocus.focus)lastFocus.focus();}
+  function openDrawer(id,tab){closeAll(false);lastFocus=document.activeElement;if(tab)showTab(tab);var d=document.getElementById(id);d.classList.add("open");d.setAttribute("aria-hidden","false");setExpanded(id,true);overlay.hidden=false;document.body.classList.add("locked");var c=d.querySelector(".dclose");if(c)c.focus();}
+  function copyText(text,okId){function done(){var o=document.getElementById(okId);o.textContent="Copied";setTimeout(function(){o.textContent="";},1800);}function fallback(){var t=document.createElement("textarea");t.value=text;t.style.position="absolute";t.style.left="-9999px";document.body.appendChild(t);t.select();try{document.execCommand("copy");done();}catch(e){}document.body.removeChild(t);}if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(text).then(done,fallback);}else{fallback();}}
+
+  load();
+  if(QSITE&&!state.f.url)state.f.url=QSITE.replace(/^https?:\/\//,"").replace(/\/$/,"");
+  if(QNAME&&!state.f.company)state.f.company=QNAME;
+  METRICS.forEach(function(m){var s=document.getElementById(m);if(!s)return;var tape=s.querySelector(".tape");if(tape&&!s.querySelector(".chip")){var ch=document.createElement("span");ch.className="chip";ch.textContent=META[m][0]+" · "+META[m][1];tape.insertAdjacentElement("afterend",ch);}var cnt=s.querySelector('[data-count="'+m+'"]');if(cnt&&TESTS[m]){var p=document.createElement("p");p.className="test";var b=document.createElement("b");b.textContent="How to test: ";p.appendChild(b);p.appendChild(document.createTextNode(TESTS[m]));cnt.insertAdjacentElement("afterend",p);}});
+  fields.forEach(function(id){var el=document.getElementById(id);if(!el)return;el.value=state.f[id]||"";el.addEventListener(el.tagName==="SELECT"?"change":"input",function(){state.f[id]=el.value;render();});});
+  document.querySelectorAll(".checks input").forEach(function(c){c.checked=!!state.c[c.dataset.id];c.addEventListener("change",function(){state.c[c.dataset.id]=c.checked;render();});});
+  document.getElementById("quickBtn").addEventListener("click",function(){state.ui.quick=!state.ui.quick;applyView();save();});
+  document.getElementById("fAccess").addEventListener("change",function(e){state.ui.access=e.target.value;applyView();render();});
+  document.getElementById("fCat").addEventListener("change",function(e){state.ui.cat=e.target.value;applyView();render();});
+  document.getElementById("reset").addEventListener("click",function(){state={f:{},c:{},ui:state.ui};fields.forEach(function(id){var el=document.getElementById(id);if(el)el.value="";});document.querySelectorAll(".checks input").forEach(function(c){c.checked=false;});render();window.scrollTo(0,0);});
+  document.getElementById("openToc").addEventListener("click",function(){openDrawer("tocDrawer");});
+  document.getElementById("openFindings").addEventListener("click",function(){openDrawer("toolDrawer","tab-findings");});
+  document.getElementById("openBrief").addEventListener("click",function(){openDrawer("toolDrawer","tab-brief");});
+  document.querySelectorAll("[data-open-tab]").forEach(function(b){b.addEventListener("click",function(){openDrawer("toolDrawer",b.dataset.openTab);});});
+  document.querySelectorAll(".tabs [role=tab]").forEach(function(b){b.addEventListener("click",function(){showTab(b.dataset.tab);});});
+  document.querySelectorAll("[data-close]").forEach(function(b){b.addEventListener("click",function(){closeAll();});});
+  overlay.addEventListener("click",function(){closeAll();});
+  document.addEventListener("keydown",function(e){if(e.key==="Escape"&&document.querySelector(".drawer.open"))closeAll();});
+  document.getElementById("tocList").addEventListener("click",function(e){var a=e.target.closest("a");if(!a)return;e.preventDefault();closeAll(false);var t=document.getElementById(a.dataset.target);if(!t)return;var reduce=window.matchMedia&&window.matchMedia("(prefers-reduced-motion: reduce)").matches;t.scrollIntoView({behavior:reduce?"auto":"smooth",block:"start"});var h=t.querySelector("h2");if(h){h.setAttribute("tabindex","-1");h.focus({preventScroll:true});}});
+  document.getElementById("copyReport").addEventListener("click",function(){copyText(document.getElementById("report").textContent,"reportOk");});
+  document.getElementById("copyBrief").addEventListener("click",function(){copyText(document.getElementById("brief").textContent,"briefOk");});
+  applyView();render();
+})();
+
+</script>
+</body>
+</html>
