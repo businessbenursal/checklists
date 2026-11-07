@@ -187,6 +187,18 @@ body.quick .metric{margin-top:2rem}
     <span>Problems found: <b id="pcount">0</b> · Flagged for video: <b id="fcount">0</b> of 3</span>
     <button type="button" id="reset">Start a new audit</button>
   </div>
+  <div class="fitbox">
+    <h3 style="margin:1.25rem 0 .25rem">Prospect fit</h3>
+    <p class="count" style="margin-top:0">Tick any that apply. These aren’t site problems; they tell you whether this company is worth a cold video.</p>
+    <ul class="checks fit">
+      <li><label><input type="checkbox" data-id="fit-a"><span>The footer credits an agency or web designer (“Website by…”)</span></label></li>
+      <li><label><input type="checkbox" data-id="fit-b"><span>Uses specialized lead or booking tools (multi-step lead forms, online booking on the Google profile)</span></label></li>
+      <li><label><input type="checkbox" data-id="fit-c"><span>The site looks recently redesigned, with current content and dates</span></label></li>
+      <li><label><input type="checkbox" data-id="fit-d"><span>Strong Google profile (hundreds of reviews, recent posts) or visible ad campaigns</span></label></li>
+      <li><label><input type="checkbox" data-id="fit-e"><span>Many service and city pages are already built</span></label></li>
+    </ul>
+    <p class="test" id="fitVerdict"></p>
+  </div>
   <p class="test" id="autoNote" hidden></p>
   <ol class="steps">
     <li>Open the site on your phone first, then desktop.</li>
@@ -218,6 +230,7 @@ body.quick .metric{margin-top:2rem}
         <li><label><input type="checkbox" data-id="m1e"><span>Stale content: old copyright year, expired promos, outdated notices</span></label></li>
         <li><label><input type="checkbox" data-id="m1f"><span>Cluttered: too many colors, fonts, or blocks fighting for attention</span></label></li>
         <li><label><input type="checkbox" data-id="m1g"><span>Phone number or contact info isn’t visible in the header</span></label></li>
+        <li><label><input type="checkbox" data-id="m1h"><span>Real photos are there, but a heavy color overlay or filter hides the faces or the work</span></label></li>
       </ul>
       <p class="count" data-count="m1">0 problems found</p>
     </div>
@@ -391,6 +404,7 @@ body.quick .metric{margin-top:2rem}
       </ul>
       <p class="count" data-count="m3">0 problems found</p>
       <p class="count">Don’t submit test entries on a prospect’s live form. Judge it by looking.</p>
+      <p class="count">Multi-step forms: if the first step asks for only one or two things (like an email), that’s good. Later steps can’t be seen without submitting, so judge the first step and don’t guess about the rest.</p>
     </div>
     <div class="wf" aria-label="Wireframe comparison: long form with Submit button versus short form with Get my free estimate button">
       <figure class="now"><figcaption>Common now</figcaption>
@@ -684,6 +698,7 @@ body.quick .metric{margin-top:2rem}
         <li><label><input type="checkbox" data-id="m7d"><span>A star rating with no review count or source</span></label></li>
         <li><label><input type="checkbox" data-id="m7e"><span>The reviews widget is broken, empty, or years out of date</span></label></li>
         <li><label><input type="checkbox" data-id="m7f"><span>Big claims with no proof (“#1 painter in town”)</span></label></li>
+        <li><label><input type="checkbox" data-id="m7g"><span>Their Google rating and review count are stronger than what the site shows (or the site uses a vaguer claim like “thousands of reviews”)</span></label></li>
       </ul>
       <p class="count" data-count="m7">0 problems found</p>
       <p class="count">Check their Google Business Profile too: if they have strong reviews the site doesn’t show, that’s an easy win to point out.</p>
@@ -916,6 +931,7 @@ body.quick .metric{margin-top:2rem}
         <li><label><input type="checkbox" data-id="m12b"><span>Only one type of home is shown, which may put off others they serve</span></label></li>
         <li><label><input type="checkbox" data-id="m12c"><span>No mention of who they serve best (homeowners, HOAs, property managers, builders)</span></label></li>
         <li><label><input type="checkbox" data-id="m12d"><span>The services they want to grow are hard to find</span></label></li>
+        <li><label><input type="checkbox" data-id="m12e"><span>Painting is one of several trades and doesn’t get its own clear path</span></label></li>
       </ul><p class="count" data-count="m12">0 problems found</p></div>
     <div class="wf" aria-label="Wireframe comparison: one generic path versus separate paths per audience">
       <figure class="now"><figcaption>Common now</figcaption><svg viewBox="0 0 160 200" role="img" aria-label="Gallery of only office buildings"><text x="8" y="20" class="s-text" style="fill:var(--ink)">Our work</text><g class="s-line"><rect x="8" y="28" width="68" height="50"/><rect x="84" y="28" width="68" height="50"/><rect x="8" y="84" width="68" height="50"/><rect x="84" y="84" width="68" height="50"/></g><text x="42" y="56" text-anchor="middle" class="s-text">office</text><text x="118" y="56" text-anchor="middle" class="s-text">warehouse</text><text x="42" y="112" text-anchor="middle" class="s-text">office</text><text x="118" y="112" text-anchor="middle" class="s-text">condo tower</text></svg></figure>
@@ -1024,6 +1040,7 @@ body.quick .metric{margin-top:2rem}
     <div class="case wrong"><h4>Got it wrong</h4><p>Nearly a quarter of the audited companies never replied to the inquiry at all.</p><span class="etype">Evidence type: same HBR study.</span></div>
   </div>
   <div class="note">This is mostly about their operations, not just the site, which makes it a strong opening for you: form alerts to their phone, an instant confirmation text, and a stated reply time are exactly the kind of automation you build.</div>
+  <div class="note">Texting leads needs consent. If a form already has small print about receiving texts and calls, that’s consent language required for automated texting in the US. Don’t suggest removing it; if you recommend adding a text option, include similar consent wording.</div>
   <h3>How to fix it</h3>
   <ul class="rules">
     <li><b>State a real reply time</b> near the form and button.</li>
@@ -1378,6 +1395,7 @@ body.quick .metric{margin-top:2rem}
         <li><label><input type="checkbox" data-id="m26b"><span>Many elements compete equally (same size, same color, all bold)</span></label></li>
         <li><label><input type="checkbox" data-id="m26c"><span>The main button blends in with the colors around it</span></label></li>
         <li><label><input type="checkbox" data-id="m26d"><span>Several different-looking buttons with no clear primary one</span></label></li>
+        <li><label><input type="checkbox" data-id="m26e"><span>Key proof or services hidden in carousels, sliders, or collapsed accordions</span></label></li>
       </ul><p class="count" data-count="m26">0 problems found</p></div>
     <div class="wf" aria-label="Wireframe comparison: everything the same weight versus one clear primary action">
       <figure class="now"><figcaption>Common now</figcaption><svg viewBox="0 0 160 200" role="img" aria-label="Four equal boxes and three similar buttons"><g class="s-line"><rect x="8" y="14" width="68" height="40"/><rect x="84" y="14" width="68" height="40"/><rect x="8" y="60" width="68" height="40"/><rect x="84" y="60" width="68" height="40"/></g><g class="s-acc" opacity=".55"><rect x="8" y="112" width="44" height="14" rx="3"/><rect x="58" y="112" width="44" height="14" rx="3"/><rect x="108" y="112" width="44" height="14" rx="3"/></g></svg></figure>
@@ -1396,6 +1414,7 @@ body.quick .metric{margin-top:2rem}
     <li><b>Secondary actions look quieter</b> (outline buttons or text links).</li>
     <li><b>Make the headline the largest text;</b> reduce competing bold and color.</li>
     <li><b>Use the accent color sparingly</b> so it means “do this.”</li>
+    <li><b>Don’t hide key proof</b> in carousels or collapsed accordions. NN/g has long found that people often skip carousel slides and don’t open collapsed content, so awards, ratings, and main services should be visible.</li>
   </ul>
   <div class="say"><b>Say it in the video</b>“When I blur my eyes on your homepage, the first things I notice are [X and Y], not the estimate button. Making that button the one bold thing on the screen tells people exactly what to do next.”</div>
 </section>
@@ -1667,6 +1686,7 @@ body.quick .metric{margin-top:2rem}
         <li><label><input type="checkbox" data-id="m35b"><span>Buttons lead to different places for the same action</span></label></li>
         <li><label><input type="checkbox" data-id="m35c"><span>Some pages have no call to action at all</span></label></li>
         <li><label><input type="checkbox" data-id="m35d"><span>The button text doesn’t match the heading of the form it opens</span></label></li>
+        <li><label><input type="checkbox" data-id="m35e"><span>Many repeated generic buttons (“Learn more,” “Read more”) compete with the main action</span></label></li>
       </ul><p class="count" data-count="m35">0 problems found</p></div>
     <div class="wf" aria-label="Wireframe comparison: different button names versus one consistent call to action">
       <figure class="now"><figcaption>Common now</figcaption><svg viewBox="0 0 160 200" role="img" aria-label="Three differently named buttons"><g class="s-line"><rect x="8" y="30" width="60" height="16" rx="3"/><rect x="8" y="80" width="60" height="16" rx="3"/><rect x="8" y="130" width="60" height="16" rx="3"/></g><text x="38" y="41" text-anchor="middle" class="s-text">Get a quote</text><text x="38" y="91" text-anchor="middle" class="s-text">Contact</text><text x="38" y="141" text-anchor="middle" class="s-text">Book now</text></svg></figure>
@@ -2035,19 +2055,19 @@ body.quick .metric{margin-top:2rem}
     m40:"Without tracking, you can’t tell which marketing brings in jobs."
   };
   var FIX={
-    m1a:"Make it readable and easy to tap on a phone, with nothing overlapping",m1b:"Swap the stock photos for your own crews and projects",m1c:"Add before/after pairs near the top",m1d:"Fix the typos and broken links or images",m1e:"Update the old year, promos, or notices",m1f:"Simplify: fewer colors and fonts, more space around the key info",m1g:"Put a tappable phone number in the header",
+    m1a:"Make it readable and easy to tap on a phone, with nothing overlapping",m1b:"Swap the stock photos for your own crews and projects",m1c:"Add before/after pairs near the top",m1d:"Fix the typos and broken links or images",m1e:"Update the old year, promos, or notices",m1f:"Simplify: fewer colors and fonts, more space around the key info",m1g:"Put a tappable phone number in the header",m1h:"Lighten the overlay so real faces and work show clearly",
     m2a:"Use a headline that says what you do, where, and why choose you",m2b:"Say “painting” in the plain words homeowners search for",m2c:"Name the city or area you serve",m2d:"Add a “Get my free estimate” button right under the headline",m2e:"Make the phone number tap-to-call",m2f:"Add a trust strip: Google rating, review count, years in business, insured",
     m3a:"Put the estimate form on the homepage and service pages too",m3b:"Cut it to name, phone, email, zip, and service",m3c:"Use one full-name field",m3d:"Change the button to “Get my free estimate”",m3e:"Add a line on what happens next and how soon",m3f:"Use clear labels and mark optional fields",m3g:"Add a sticky estimate button and tap-to-call on mobile",
     m2g:"Make the visible headline real text and the page’s H1",m2h:"Use H2s for each main section: services, process, reviews, areas",
     m4a:"Compress and resize images so the main content shows in under about 2.5 seconds",m4b:"Set image sizes so the page stops jumping while it loads",m4c:"Replace the slider or video with one optimized photo of your work",m4d:"Delay non-essential scripts like chat widgets",m4e:"Remove the popup on mobile page load",
     m5a:"Give each main service its own page",m5b:"Add a dedicated page for that service, with its photos and process",m5c:"Add process, timeline, real photos, and FAQs to each service page",m5d:"Add a clear service area page with local projects",m5e:"Merge copy-paste city pages, or add real local content to each",m5f:"Replace the city list with a service area page",
     m6a:"Write a title like “House Painters in [City] | [Company]”",m6b:"Give every page its own title",m6c:"Put the service and city at the start of each title",m6d:"Shorten titles so they aren’t cut off",m6e:"Write a short meta description: what, where, proof, next step",
-    m7a:"Add your Google rating and review count near the top",m7b:"Use real reviews with name, area, and the service done",m7c:"Link to your Google reviews",m7d:"Show the review count and source next to the rating",m7e:"Fix or replace the reviews widget with current reviews",m7f:"Back up big claims with real numbers or reviews",
+    m7a:"Add your Google rating and review count near the top",m7b:"Use real reviews with name, area, and the service done",m7c:"Link to your Google reviews",m7d:"Show the review count and source next to the rating",m7e:"Fix or replace the reviews widget with current reviews",m7f:"Back up big claims with real numbers or reviews",m7g:"Show your exact Google rating and review count, linked",
     m8a:"Show the main menu across the top on desktop",m8b:"Use plain labels like Services, Our Work, Reviews",m8c:"List each service in the menu",m8d:"Add Call and Estimate buttons to the mobile header",m8e:"Make buttons bigger and more spaced out",m8f:"Fix the dead or mislabeled links",
     m9a:"Write one clear line on what you do, for whom, and why you",m9b:"Lead with the customer’s outcome; move company history to About",m9c:"Use the same core message on every page",m9d:"Move your main reason to choose you into the hero",
     m10a:"Replace generic slogans with a specific difference",m10b:"Name your specialty, process, or promise",m10c:"Lead with what customers praise most in reviews",m10d:"Add real numbers: years, homes painted, warranty length",
     m11a:"Add “so you…” to each feature to state the benefit",m11b:"Name the outcomes homeowners care about",m11c:"Rewrite service pages around results",
-    m12a:"Feature photos of the jobs you want more of",m12b:"Show a range of homes you serve",m12c:"Say who you serve best, with a path for each",m12d:"Move the services you want to grow near the top",
+    m12a:"Feature photos of the jobs you want more of",m12b:"Show a range of homes you serve",m12c:"Say who you serve best, with a path for each",m12d:"Move the services you want to grow near the top",m12e:"Give painting its own clear path and landing page",
     m13a:"State your warranty terms near the top",m13b:"Put “Licensed and insured” under the headline",m13c:"Add a protection and cleanup promise",m13d:"Replace vague guarantees with clear terms",
     m14a:"Offer an easy first step beyond “Contact us”",m14b:"Add a low-risk offer like a quote from photos",m14c:"Remove the fake timer or scarcity claim",m14d:"Use real seasonal timing if it’s true",
     m15a:"State a real reply time by the form",m15b:"Add a “text us photos” option",m15c:"Offer call, text, and form options",m15d:"Show business hours by the contact options",
@@ -2061,7 +2081,7 @@ body.quick .metric{margin-top:2rem}
     m23a:"Switch to HTTPS with redirects",m23b:"Submit a sitemap and check Search Console",m23c:"Make sure service pages can be indexed",m23d:"Redirect duplicate versions to one",m23e:"Remove the accidental noindex",
     m24a:"Add 3–4 useful guides based on your expertise",m24b:"Improve or remove thin blog posts",m24c:"Add real photos and specifics from your jobs",m24d:"Update the blog or retire it",
     m25a:"Break long paragraphs into short ones",m25b:"Add clear subheadings",m25c:"Turn lists into bullets",m25d:"Make text darker and larger",m25e:"Limit line length on desktop",
-    m26a:"Make the estimate button the boldest thing on screen",m26b:"Reduce competing emphasis",m26c:"Give the main button a contrasting color",m26d:"Pick one primary button; make others quieter",
+    m26a:"Make the estimate button the boldest thing on screen",m26b:"Reduce competing emphasis",m26c:"Give the main button a contrasting color",m26d:"Pick one primary button; make others quieter",m26e:"Show key proof and services instead of hiding them",
     m27a:"Fix low-contrast text",m27b:"Add alt text to meaningful images",m27c:"Add visible labels to every form field",m27d:"Label icon-only buttons",m27e:"Make the menu and form keyboard-usable",
     m28a:"Put the phone number in the header",m28b:"Show business hours",m28c:"State the service area clearly",m28d:"Add phone, text, and email to the contact page",
     m29a:"Remove the popup on page load",m29b:"Move the chat bubble off key buttons",m29c:"Shrink the banner on mobile",m29d:"Make the close button obvious",
@@ -2070,7 +2090,7 @@ body.quick .metric{margin-top:2rem}
     m32a:"Rewrite “we” sentences around “you”",m32b:"Replace fluff with facts",m32c:"Add specifics: numbers, places, examples",m32d:"Use homeowner words, not jargon",
     m33a:"Explain protection and cleanup",m33b:"Explain timing and scheduling",m33c:"Say who will be in the home",m33d:"Address kids, pets, and safety",m33e:"Explain payment terms",
     m34a:"Replace superlatives with proof",m34b:"Add real numbers",m34c:"Put reviews or photos next to quality claims",
-    m35a:"Use one name for the main action",m35b:"Point every button to the same form",m35c:"Add a call to action to every page",m35d:"Match the form heading to the button",
+    m35a:"Use one name for the main action",m35b:"Point every button to the same form",m35c:"Add a call to action to every page",m35d:"Match the form heading to the button",m35e:"Replace generic “Learn more” buttons with specific links",
     m36a:"Caption every photo",m36b:"Write short project stories",m36c:"Add process photos",m36d:"Link projects to services and reviews",
     m37a:"Add real owner and crew photos",m37b:"Name the owner",m37c:"Rewrite the About page with specifics",m37d:"Tell the company’s story",
     m38a:"Open with the homeowner’s goal",m38b:"Name the problem you solve",m38c:"Show a simple 3-step plan",m38d:"Show what success looks like",
@@ -2128,11 +2148,11 @@ body.quick .metric{margin-top:2rem}
         "Preview: you’ll walk through "+word+" quick idea"+(flagged.length>1?"s":"")+", and it’ll take about 2 minutes."
       ]],["Show",["Their homepage, top of the page"]]]);
       flagged.forEach(function(m,i){
-        var ticked=[],fixes=[];
-        document.querySelectorAll('.checks[data-metric="'+m+'"] input:checked').forEach(function(c){ticked.push(c.parentNode.querySelector("span").textContent);if(FIX[c.dataset.id])fixes.push(FIX[c.dataset.id]);});
-        if(!ticked.length)ticked=["Point to the "+TITLES[m].toLowerCase()+" on their site"];
-        if(!fixes.length)fixes=[DEFAULT_FIX[m]];
-        var groups=[["Show on screen (what you noticed)",ticked],["Why it matters",[WHY[m]]],["What I’d change",fixes.slice(0,3)]];
+        var pairs=[];
+        document.querySelectorAll('.checks[data-metric="'+m+'"] input:checked').forEach(function(c){var t=c.parentNode.querySelector("span").textContent;var f=FIX[c.dataset.id];pairs.push(f?t+" → "+f:t);});
+        if(!pairs.length)pairs=["Point to the "+TITLES[m].toLowerCase()+" on their site → "+DEFAULT_FIX[m]];
+        var groups=[["Show and fix (what you noticed → what you’d change)",pairs],["Why it matters",[WHY[m]]]];
+        if(pairs.length>3)groups.push(["Tip",["You ticked "+pairs.length+" problems here. For a 30-second idea, show the 2–3 biggest and mention there are a few more small fixes."]]);
         if(i<flagged.length-1)groups.push(["Bridge",["“The next thing I noticed is…”"]]);
         block("Idea "+(i+1)+": "+TITLES[m]+" (about 30 seconds)",groups);
       });
@@ -2155,8 +2175,12 @@ body.quick .metric{margin-top:2rem}
     var srcM=flagged.length?flagged:METRICS,cur=state.f.issuePick||"",any=0;
     pick.innerHTML="";var o0=document.createElement("option");o0.value="";o0.textContent=flagged.length?"Pick from your flagged checks…":"Pick from what you ticked…";pick.appendChild(o0);
     srcM.forEach(function(m){var boxes=document.querySelectorAll('.checks[data-metric="'+m+'"] input:checked');if(!boxes.length)return;var g=document.createElement("optgroup");g.label=TITLES[m];boxes.forEach(function(c){var o=document.createElement("option");o.value=c.dataset.id;o.textContent=c.parentNode.querySelector("span").textContent;g.appendChild(o);any++;});pick.appendChild(g);});
-    pick.value=cur;if(pick.value!==cur)pick.value="";
-    hint.textContent=any?(flagged.length?"Showing problems you ticked in your flagged checks.":"Showing everything you ticked. Flag checks to narrow the list."):"Tick problems in the checks to choose one here.";
+    pick.value=cur;if(pick.value!==cur){pick.value="";if(cur){state.f.issuePick="";cur="";}}
+    if(!cur&&any&&(!state.f.issue||state.f.issueAuto)){
+      var first=pick.querySelector("optgroup option");
+      if(first){cur=first.value;pick.value=cur;state.f.issuePick=cur;var fc=document.querySelector('.checks input[data-id="'+cur+'"]');if(fc){state.f.issue=plainIssue(fc);state.f.issueAuto=true;document.getElementById("issue").value=state.f.issue;pm=fc.closest(".checks").dataset.metric;issue=state.f.issue;subs[2]="Quick idea about "+co+"’s "+(SHORT[pm]||"website");}}
+    }
+    hint.textContent=any?(cur&&state.f.issueAuto?"Auto-selected the first problem from Idea 1. Pick another, or edit the wording below.":(flagged.length?"Showing problems you ticked in your flagged checks.":"Showing everything you ticked. Flag checks to narrow the list.")):"Tick problems in the checks to choose one here.";
     var sl=document.getElementById("subjects");sl.innerHTML="";subs.forEach(function(s){var li=document.createElement("li");li.textContent=s;sl.appendChild(li);});
 
     var lines=[];
@@ -2181,6 +2205,13 @@ body.quick .metric{margin-top:2rem}
     ].join("\n");
     save();
     renderTOC();
+    renderFit();
+  }
+
+  function renderFit(){
+    var v=document.getElementById("fitVerdict");if(!v)return;
+    var n=document.querySelectorAll(".checks.fit input:checked").length;
+    v.textContent=n===0?"No signs of outside help yet. Good prospect for a cold video.":n===1?"One sign of outside help. Still worth a video if the site has clear problems.":"Likely has an agency or marketing team already. Lower priority, or pitch something specific they’re clearly missing.";
   }
 
   function renderTOC(){
@@ -2256,11 +2287,13 @@ body.quick .metric{margin-top:2rem}
     var cnt=s.querySelector('[data-count="'+m+'"]');
     if(cnt&&TESTS[m]&&!s.querySelector(".test")){var p=document.createElement("p");p.className="test";var b=document.createElement("b");b.textContent="How to test: ";p.appendChild(b);p.appendChild(document.createTextNode(TESTS[m]));cnt.insertAdjacentElement("afterend",p);}
   });
+  function plainIssue(c){var t=c.parentNode.querySelector("span").textContent.replace(/^SEO:\s*/,"");if(t.length>1&&t.charAt(1)===t.charAt(1).toLowerCase())t=t.charAt(0).toLowerCase()+t.slice(1);return t;}
   document.getElementById("issuePick").addEventListener("change",function(e){
     var id=e.target.value;state.f.issuePick=id;
-    if(id){var c=document.querySelector('.checks input[data-id="'+id+'"]');if(c){var t=c.parentNode.querySelector("span").textContent.replace(/^SEO:\s*/,"");if(t.length>1&&t.charAt(1)===t.charAt(1).toLowerCase())t=t.charAt(0).toLowerCase()+t.slice(1);state.f.issue=t;document.getElementById("issue").value=t;}}
+    if(id){var c=document.querySelector('.checks input[data-id="'+id+'"]');if(c){var t=plainIssue(c);state.f.issue=t;state.f.issueAuto=true;document.getElementById("issue").value=t;}}else{state.f.issueAuto=false;}
     render();
   });
+  document.getElementById("issue").addEventListener("input",function(){state.f.issueAuto=false;save();});
   document.getElementById("quickBtn").addEventListener("click",function(){state.ui.quick=!state.ui.quick;applyView();render();});
   document.getElementById("fTier").addEventListener("change",function(e){state.ui.tier=e.target.value;applyView();render();});
   document.getElementById("fCat").addEventListener("change",function(e){state.ui.cat=e.target.value;applyView();render();});
