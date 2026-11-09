@@ -1903,8 +1903,19 @@ body.quick .metric{margin-top:2rem}
       <label class="f" style="margin-top:.75rem">Video link
         <input type="url" id="video" placeholder="https://www.loom.com/share/…"></label>
 
-      <h3>Subject line options</h3>
-      <ul class="subjects" id="subjects"></ul>
+      <label class="f" style="margin-top:.75rem">Video length (minutes)
+        <input type="text" id="vlen" inputmode="numeric" placeholder="2"></label>
+
+      <h3>Subject line</h3>
+      <label class="f">Template (uses their first name when you’ve entered one)
+        <select id="subjPick"></select></label>
+      <pre class="out" id="subject" style="margin-top:.5rem"></pre>
+      <div class="row"><button type="button" id="copySubject">Copy subject</button><span class="ok" id="subjectOk" aria-live="polite"></span></div>
+
+      <h3>Why you’re sending this</h3>
+      <label class="f">Wording
+        <select id="whyPick"></select></label>
+      <p class="count" style="margin-top:.35rem">All versions avoid words like “free” and “no cost,” which spam filters and skeptical readers both react to.</p>
 
       <h3>Email</h3>
       <pre class="out" id="email"></pre>
@@ -1971,6 +1982,15 @@ body.quick .metric{margin-top:2rem}
   var METRICS=["m1","m2","m3","m4","m5","m6","m7","m8","m9","m10","m11","m12","m13","m14","m15","m16","m17","m18","m19","m20","m21","m22","m23","m24","m25","m26","m27","m28","m29","m30","m31","m32","m33","m34","m35","m36","m37","m38","m39","m40"];
   var TITLES={m1:"First impression and visual credibility",m2:"Headline and hero message",m3:"Estimate request form and button",m4:"Page speed on mobile",m5:"Service pages and service area",m6:"Google search listing",m7:"Reviews and proof",m8:"Navigation and mobile usability",m9:"Value proposition clarity",m10:"Differentiation",m11:"Benefits over features",m12:"Ideal customer fit",m13:"Risk reversal and guarantees",m14:"Offer and reason to act",m15:"Speed to lead",m16:"Pricing guidance",m17:"Trust badges and affiliations",m18:"Google Business Profile",m19:"Name, address, and phone consistency",m20:"LocalBusiness schema",m21:"FAQ content",m22:"Image SEO",m23:"Indexing basics",m24:"Helpful content",m25:"Readability and scannability",m26:"Visual hierarchy",m27:"Accessibility basics",m28:"Contact and hours clarity",m29:"Popups and interruptions",m30:"Favicon and share preview",m31:"Broken pages and links",m32:"Customer-focused, specific copy",m33:"Answering objections",m34:"Proof-backed claims",m35:"Consistent calls to action",m36:"Project stories",m37:"About and team",m38:"Customer as the hero",m39:"Video",m40:"Conversion tracking"};
   var META={m1:["UX","Core"],m2:["Copy","Core"],m3:["UX","Core"],m4:["Performance","Core"],m5:["SEO","Core"],m6:["SEO","Core"],m7:["Trust","Core"],m8:["UX","Core"],m9:["Strategy","Core"],m10:["Strategy","Core"],m11:["Copy","Core"],m12:["Strategy","Deep"],m13:["Trust","Core"],m14:["Strategy","Deep"],m15:["Strategy","Core"],m16:["Strategy","Deep"],m17:["Trust","Core"],m18:["SEO","Core"],m19:["SEO","Deep"],m20:["SEO","Deep"],m21:["SEO","Deep"],m22:["SEO","Deep"],m23:["SEO","Core"],m24:["SEO","Deep"],m25:["UX","Core"],m26:["UX","Core"],m27:["UX","Deep"],m28:["UX","Core"],m29:["UX","Core"],m30:["UX","Core"],m31:["UX","Deep"],m32:["Copy","Core"],m33:["Copy","Deep"],m34:["Copy","Core"],m35:["Copy","Core"],m36:["Story","Deep"],m37:["Story","Core"],m38:["Story","Deep"],m39:["Story","Deep"],m40:["Measurement","Deep"]};
+  var SUBJ_LABELS=["A quick video about your homepage, [Name]","[Name], I made you a short video","[Name], a quick idea for [Company]’s [topic]","[Company]’s website: [number] quick ideas","Question for [Name] about your [topic]"];
+  var WHYSEND=[
+    ["Why I’m sending this…","Why I’m sending this: I build websites for painting contractors, and reviews like this are how I introduce myself. Nothing to buy and nothing to sign up for."],
+    ["A bit about me…","A bit about me: I build websites for painting contractors. Instead of sending a generic pitch, I’d rather introduce myself by showing you something useful about your own site."],
+    ["Why the video?…","Why the video? I build websites for painting contractors, and I’d rather show you what I’d do than just tell you. Think of it as my introduction."],
+    ["Quick context…","Quick context: I work with painting contractors on their websites, and I record a few reviews like this each week as a way to introduce myself. No strings attached."],
+    ["In case you’re wondering…","In case you’re wondering why a stranger made you a video: I build websites for painting contractors, and I like to introduce myself by being useful first."],
+    ["Leave it out",""]
+  ];
   var SHORT={m1:"website",m2:"homepage headline",m3:"estimate form",m4:"site speed",m5:"service pages",m6:"Google listing",m7:"reviews",m8:"menu",m9:"homepage message",m10:"homepage message",m11:"service pages",m12:"project gallery",m13:"warranty info",m14:"homepage offer",m15:"lead follow-up",m16:"pricing info",m17:"trust badges",m18:"Google profile",m19:"business listings",m20:"site setup",m21:"FAQs",m22:"project photos",m23:"Google visibility",m24:"blog",m25:"service pages",m26:"homepage layout",m27:"site readability",m28:"contact page",m29:"mobile site",m30:"link previews",m31:"site links",m32:"homepage copy",m33:"service pages",m34:"homepage claims",m35:"buttons",m36:"project gallery",m37:"About page",m38:"homepage",m39:"videos",m40:"lead tracking"};
   var TESTS={
     m1:"Open the site on your phone first, then desktop. Look at the first screen for 5 seconds and ask: would I let this company into my home?",
@@ -2108,7 +2128,7 @@ body.quick .metric{margin-top:2rem}
     document.getElementById("fTier").value=state.ui.tier;document.getElementById("fCat").value=state.ui.cat;
   }
   function save(){try{localStorage.setItem(KEY,JSON.stringify(state));}catch(e){}}
-  var fields=["company","url","name","city","praise","issue","video"];
+  var fields=["company","url","name","city","praise","issue","video","vlen","subjPick","whyPick"];
   function v(id){return (state.f[id]||"").trim();}
   function or(id,fb){return v(id)||fb;}
 
@@ -2181,7 +2201,16 @@ body.quick .metric{margin-top:2rem}
       if(first){cur=first.value;pick.value=cur;state.f.issuePick=cur;var fc=document.querySelector('.checks input[data-id="'+cur+'"]');if(fc){state.f.issue=plainIssue(fc);state.f.issueAuto=true;document.getElementById("issue").value=state.f.issue;pm=fc.closest(".checks").dataset.metric;issue=state.f.issue;subs[2]="Quick idea about "+co+"’s "+(SHORT[pm]||"website");}}
     }
     hint.textContent=any?(cur&&state.f.issueAuto?"Auto-selected the first problem from Idea 1. Pick another, or edit the wording below.":(flagged.length?"Showing problems you ticked in your flagged checks.":"Showing everything you ticked. Flag checks to narrow the list.")):"Tick problems in the checks to choose one here.";
-    var sl=document.getElementById("subjects");sl.innerHTML="";subs.forEach(function(s){var li=document.createElement("li");li.textContent=s;sl.appendChild(li);});
+    var nm=v("name"),len=(v("vlen")||"2").replace(/[^0-9.]/g,"")||"2",topic=SHORT[pm]||"website";
+    var SUBJ=[
+      nm?"A quick video about your homepage, "+nm:"A quick video about your homepage",
+      nm?nm+", I made you a short video":"I made you a short video about your website",
+      nm?nm+", a quick idea for "+co+"’s "+topic:"A quick idea for "+co+"’s "+topic,
+      co+"’s website: "+nWord+" quick idea"+(nIdeas>1?"s":""),
+      nm?"Question for "+nm+" about your "+topic:"Question about "+co+"’s "+topic
+    ];
+    var si=parseInt(v("subjPick")||"0",10);if(!(si>=0&&si<SUBJ.length))si=0;
+    document.getElementById("subject").textContent=SUBJ[si];
 
     var lines=[];
     lines.push("Hi "+name+",");lines.push("");
@@ -2189,10 +2218,13 @@ body.quick .metric{margin-top:2rem}
     lines.push("");
     lines.push("While I was on your site, one thing stood out: "+issue.replace(/\.$/,"")+". "+(pm&&WHY[pm]?WHY[pm]:"That may mean some homeowners who are ready for an estimate leave before they contact you."));
     lines.push("");
-    lines.push(nIdeas>1?"That’s the first of "+nWord+" quick ideas I walk through in a short video I made for "+co+" (about 2 minutes):":"I walk through it, and how I’d fix it, in a short video I made for "+co+" (about 2 minutes):");
+    var lenTxt="about "+len+" minute"+(len==="1"?"":"s");
+    lines.push(nIdeas>1?"That’s the first of "+nWord+" ideas I walk through in a short video I made for "+co+" ("+lenTxt+"):":"I walk through it, and how I’d fix it, in a short video I made for "+co+" ("+lenTxt+"):");
     lines.push("");
     lines.push(video);
     lines.push("");
+    var wi=parseInt(v("whyPick")||"0",10);if(!(wi>=0&&wi<WHYSEND.length))wi=0;
+    if(WHYSEND[wi][1]){lines.push(WHYSEND[wi][1]);lines.push("");}
     lines.push("The ideas are yours to use either way. If any of it’s helpful and you’d like a hand, just reply here.");
     lines.push("");
     lines.push("Ben");lines.push("cornerstonesmith.com");
@@ -2200,7 +2232,7 @@ body.quick .metric{margin-top:2rem}
 
     document.getElementById("followup").textContent=[
       "Hi "+name+",","",
-      "Just making sure this didn’t get buried. Here’s the 2-minute video with 3 ideas for "+co+"’s website:","",video,"",
+      "Just making sure this didn’t get buried. Here’s the short video ("+lenTxt+") with "+nWord+" idea"+(nIdeas>1?"s":"")+" for "+co+"’s website:","",video,"",
       "No pressure at all. If now isn’t a good time, no reply needed.","","Ben"
     ].join("\n");
     save();
@@ -2298,7 +2330,11 @@ body.quick .metric{margin-top:2rem}
   document.getElementById("fTier").addEventListener("change",function(e){state.ui.tier=e.target.value;applyView();render();});
   document.getElementById("fCat").addEventListener("change",function(e){state.ui.cat=e.target.value;applyView();render();});
   applyView();
-  fields.forEach(function(id){var el=document.getElementById(id);el.value=state.f[id]||"";el.addEventListener("input",function(){state.f[id]=el.value;render();});});
+  (function(){var sp=document.getElementById("subjPick"),wp=document.getElementById("whyPick");
+    SUBJ_LABELS.forEach(function(t,i){var o=document.createElement("option");o.value=String(i);o.textContent=t;sp.appendChild(o);});
+    WHYSEND.forEach(function(w,i){var o=document.createElement("option");o.value=String(i);o.textContent=w[0];wp.appendChild(o);});})();
+  fields.forEach(function(id){var el=document.getElementById(id);el.value=state.f[id]||"";el.addEventListener(el.tagName==="SELECT"?"change":"input",function(){state.f[id]=el.value;render();});});
+  ["subjPick","whyPick"].forEach(function(id){var el=document.getElementById(id);if(!el.value)el.value="0";});
   document.querySelectorAll(".checks input").forEach(function(c){c.checked=!!state.c[c.dataset.id];c.addEventListener("change",function(){state.c[c.dataset.id]=c.checked;render();});});
   document.querySelectorAll(".flag").forEach(function(b){b.addEventListener("click",function(){
     var m=b.dataset.flag;var count=Object.keys(state.flags).filter(function(k){return state.flags[k];}).length;
@@ -2311,6 +2347,7 @@ body.quick .metric{margin-top:2rem}
     render();window.scrollTo(0,0);
   });
   document.getElementById("copyEmail").addEventListener("click",function(){copyText(document.getElementById("email").textContent,"emailOk");});
+  document.getElementById("copySubject").addEventListener("click",function(){copyText(document.getElementById("subject").textContent,"subjectOk");});
   document.getElementById("copyFollow").addEventListener("click",function(){copyText(document.getElementById("followup").textContent,"followOk");});
   document.getElementById("copyNotes").addEventListener("click",function(){copyText(document.getElementById("vnotes").innerText,"notesOk");});
   window.addEventListener("message",function(e){
